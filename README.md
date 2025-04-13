@@ -1,80 +1,30 @@
-# ModuleImporter
+# @istanbuljs/schema
 
-by [Nicholas C. Zakas](https://humanwhocodes.com)
+[![Travis CI][travis-image]][travis-url]
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![MIT][license-image]](LICENSE)
 
-If you find this useful, please consider supporting my work with a [donation](https://humanwhocodes.com/donate).
-
-## Description
-
-A utility for seamlessly importing modules in Node.js regardless if they are CommonJS or ESM format. Under the hood, this uses `import()` and relies on Node.js's CommonJS compatibility to work correctly. This ensures that the correct locations and formats are used for CommonJS so you can call one method and not worry about any compatibility issues.
-
-The problem with the default `import()` is that it always resolves relative to the file location in which it is called. If you want to resolve from a different location, you need to jump through a few hoops to achieve that. This package makes it easy to both resolve and import modules from any directory.
+Schemas describing various structures used by nyc and istanbuljs
 
 ## Usage
 
-### Node.js
-
-Install using [npm][npm] or [yarn][yarn]:
-
-```
-npm install @humanwhocodes/module-importer
-
-# or
-
-yarn add @humanwhocodes/module-importer
-```
-
-Import into your Node.js project:
-
 ```js
-// CommonJS
-const { ModuleImporter } = require("@humanwhocodes/module-importer");
+const {nyc} = require('@istanbuljs/schema').defaults;
 
-// ESM
-import { ModuleImporter } from "@humanwhocodes/module-importer";
+console.log(`Default exclude list:\n\t* ${nyc.exclude.join('\n\t* ')}`);
 ```
 
-### Bun
+## `@istanbuljs/schema` for enterprise
 
-Install using this command:
+Available as part of the Tidelift Subscription.
 
-```
-bun add @humanwhocodes/module-importer
-```
+The maintainers of `@istanbuljs/schema` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/npm-istanbuljs-schema?utm_source=npm-istanbuljs-schema&utm_medium=referral&utm_campaign=enterprise)
 
-Import into your Bun project:
-
-```js
-import { ModuleImporter } from "@humanwhocodes/module-importer";
-```
-
-## API
-
-After importing, create a new instance of `ModuleImporter` to start emitting events:
-
-```js
-// cwd can be omitted to use process.cwd()
-const importer = new ModuleImporter(cwd);
-
-// you can resolve the location of any package
-const location = importer.resolve("./some-file.cjs");
-
-// you can also import directly
-const module = importer.import("./some-file.cjs");
-```
-
-For both `resolve()` and `import()`, you can pass in package names and filenames.
-
-## Developer Setup
-
-1. Fork the repository
-2. Clone your fork
-3. Run `npm install` to setup dependencies
-4. Run `npm test` to run tests
-
-## License
-
-Apache 2.0
-
-[npm]: https://npmjs.com/
-[yarn]: https://yarnpkg.com/
+[npm-image]: https://img.shields.io/npm/v/@istanbuljs/schema.svg
+[npm-url]: https://npmjs.org/package/@istanbuljs/schema
+[travis-image]: https://travis-ci.org/istanbuljs/schema.svg?branch=master
+[travis-url]: https://travis-ci.org/istanbuljs/schema
+[downloads-image]: https://img.shields.io/npm/dm/@istanbuljs/schema.svg
+[downloads-url]: https://npmjs.org/package/@istanbuljs/schema
+[license-image]: https://img.shields.io/npm/l/@istanbuljs/schema.svg
