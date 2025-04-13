@@ -1,435 +1,198 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-exports.wrapAnsiString =
-  exports.trimAndFormatPath =
-  exports.relativePath =
-  exports.printDisplayName =
-  exports.getSummary =
-  exports.formatTestPath =
-    void 0;
+const {
+  ArrayPrototypeFind,
+  ObjectEntries,
+  ObjectPrototypeHasOwnProperty: ObjectHasOwn,
+  StringPrototypeCharAt,
+  StringPrototypeIncludes,
+  StringPrototypeStartsWith,
+} = require('./internal/primordials');
 
-function path() {
-  const data = _interopRequireWildcard(require('path'));
+const {
+  validateObject,
+} = require('./internal/validators');
 
-  path = function () {
-    return data;
-  };
+// These are internal utilities to make the parsing logic easier to read, and
+// add lots of detail for the curious. They are in a separate file to allow
+// unit testing, although that is not essential (this could be rolled into
+// main file and just tested implicitly via API).
+//
+// These routines are for internal use, not for export to client.
 
-  return data;
-}
-
-function _chalk() {
-  const data = _interopRequireDefault(require('chalk'));
-
-  _chalk = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _slash() {
-  const data = _interopRequireDefault(require('slash'));
-
-  _slash = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _jestUtil() {
-  const data = require('jest-util');
-
-  _jestUtil = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {default: obj};
-}
-
-function _getRequireWildcardCache(nodeInterop) {
-  if (typeof WeakMap !== 'function') return null;
-  var cacheBabelInterop = new WeakMap();
-  var cacheNodeInterop = new WeakMap();
-  return (_getRequireWildcardCache = function (nodeInterop) {
-    return nodeInterop ? cacheNodeInterop : cacheBabelInterop;
-  })(nodeInterop);
-}
-
-function _interopRequireWildcard(obj, nodeInterop) {
-  if (!nodeInterop && obj && obj.__esModule) {
-    return obj;
-  }
-  if (obj === null || (typeof obj !== 'object' && typeof obj !== 'function')) {
-    return {default: obj};
-  }
-  var cache = _getRequireWildcardCache(nodeInterop);
-  if (cache && cache.has(obj)) {
-    return cache.get(obj);
-  }
-  var newObj = {};
-  var hasPropertyDescriptor =
-    Object.defineProperty && Object.getOwnPropertyDescriptor;
-  for (var key in obj) {
-    if (key !== 'default' && Object.prototype.hasOwnProperty.call(obj, key)) {
-      var desc = hasPropertyDescriptor
-        ? Object.getOwnPropertyDescriptor(obj, key)
-        : null;
-      if (desc && (desc.get || desc.set)) {
-        Object.defineProperty(newObj, key, desc);
-      } else {
-        newObj[key] = obj[key];
-      }
-    }
-  }
-  newObj.default = obj;
-  if (cache) {
-    cache.set(obj, newObj);
-  }
-  return newObj;
+/**
+ * Return the named property, but only if it is an own property.
+ */
+function objectGetOwn(obj, prop) {
+  if (ObjectHasOwn(obj, prop))
+    return obj[prop];
 }
 
 /**
- * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
+ * Return the named options property, but only if it is an own property.
  */
-const PROGRESS_BAR_WIDTH = 40;
+function optionsGetOwn(options, longOption, prop) {
+  if (ObjectHasOwn(options, longOption))
+    return objectGetOwn(options[longOption], prop);
+}
 
-const printDisplayName = config => {
-  const {displayName} = config;
+/**
+ * Determines if the argument may be used as an option value.
+ * @example
+ * isOptionValue('V') // returns true
+ * isOptionValue('-v') // returns true (greedy)
+ * isOptionValue('--foo') // returns true (greedy)
+ * isOptionValue(undefined) // returns false
+ */
+function isOptionValue(value) {
+  if (value == null) return false;
 
-  const white = _chalk().default.reset.inverse.white;
+  // Open Group Utility Conventions are that an option-argument
+  // is the argument after the option, and may start with a dash.
+  return true; // greedy!
+}
 
-  if (!displayName) {
-    return '';
-  }
+/**
+ * Detect whether there is possible confusion and user may have omitted
+ * the option argument, like `--port --verbose` when `port` of type:string.
+ * In strict mode we throw errors if value is option-like.
+ */
+function isOptionLikeValue(value) {
+  if (value == null) return false;
 
-  const {name, color} = displayName;
-  const chosenColor = _chalk().default.reset.inverse[color]
-    ? _chalk().default.reset.inverse[color]
-    : white;
-  return _chalk().default.supportsColor ? chosenColor(` ${name} `) : name;
-};
+  return value.length > 1 && StringPrototypeCharAt(value, 0) === '-';
+}
 
-exports.printDisplayName = printDisplayName;
+/**
+ * Determines if `arg` is just a short option.
+ * @example '-f'
+ */
+function isLoneShortOption(arg) {
+  return arg.length === 2 &&
+    StringPrototypeCharAt(arg, 0) === '-' &&
+    StringPrototypeCharAt(arg, 1) !== '-';
+}
 
-const trimAndFormatPath = (pad, config, testPath, columns) => {
-  const maxLength = columns - pad;
-  const relative = relativePath(config, testPath);
-  const {basename} = relative;
-  let {dirname} = relative; // length is ok
+/**
+ * Determines if `arg` is a lone long option.
+ * @example
+ * isLoneLongOption('a') // returns false
+ * isLoneLongOption('-a') // returns false
+ * isLoneLongOption('--foo') // returns true
+ * isLoneLongOption('--foo=bar') // returns false
+ */
+function isLoneLongOption(arg) {
+  return arg.length > 2 &&
+    StringPrototypeStartsWith(arg, '--') &&
+    !StringPrototypeIncludes(arg, '=', 3);
+}
 
-  if ((dirname + path().sep + basename).length <= maxLength) {
-    return (0, _slash().default)(
-      _chalk().default.dim(dirname + path().sep) +
-        _chalk().default.bold(basename)
-    );
-  } // we can fit trimmed dirname and full basename
+/**
+ * Determines if `arg` is a long option and value in the same argument.
+ * @example
+ * isLongOptionAndValue('--foo') // returns false
+ * isLongOptionAndValue('--foo=bar') // returns true
+ */
+function isLongOptionAndValue(arg) {
+  return arg.length > 2 &&
+    StringPrototypeStartsWith(arg, '--') &&
+    StringPrototypeIncludes(arg, '=', 3);
+}
 
-  const basenameLength = basename.length;
+/**
+ * Determines if `arg` is a short option group.
+ *
+ * See Guideline 5 of the [Open Group Utility Conventions](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html).
+ *   One or more options without option-arguments, followed by at most one
+ *   option that takes an option-argument, should be accepted when grouped
+ *   behind one '-' delimiter.
+ * @example
+ * isShortOptionGroup('-a', {}) // returns false
+ * isShortOptionGroup('-ab', {}) // returns true
+ * // -fb is an option and a value, not a short option group
+ * isShortOptionGroup('-fb', {
+ *   options: { f: { type: 'string' } }
+ * }) // returns false
+ * isShortOptionGroup('-bf', {
+ *   options: { f: { type: 'string' } }
+ * }) // returns true
+ * // -bfb is an edge case, return true and caller sorts it out
+ * isShortOptionGroup('-bfb', {
+ *   options: { f: { type: 'string' } }
+ * }) // returns true
+ */
+function isShortOptionGroup(arg, options) {
+  if (arg.length <= 2) return false;
+  if (StringPrototypeCharAt(arg, 0) !== '-') return false;
+  if (StringPrototypeCharAt(arg, 1) === '-') return false;
 
-  if (basenameLength + 4 < maxLength) {
-    const dirnameLength = maxLength - 4 - basenameLength;
-    dirname =
-      '...' + dirname.slice(dirname.length - dirnameLength, dirname.length);
-    return (0, _slash().default)(
-      _chalk().default.dim(dirname + path().sep) +
-        _chalk().default.bold(basename)
-    );
-  }
+  const firstShort = StringPrototypeCharAt(arg, 1);
+  const longOption = findLongOptionForShort(firstShort, options);
+  return optionsGetOwn(options, longOption, 'type') !== 'string';
+}
 
-  if (basenameLength + 4 === maxLength) {
-    return (0, _slash().default)(
-      _chalk().default.dim('...' + path().sep) + _chalk().default.bold(basename)
-    );
-  } // can't fit dirname, but can fit trimmed basename
+/**
+ * Determine if arg is a short string option followed by its value.
+ * @example
+ * isShortOptionAndValue('-a', {}); // returns false
+ * isShortOptionAndValue('-ab', {}); // returns false
+ * isShortOptionAndValue('-fFILE', {
+ *   options: { foo: { short: 'f', type: 'string' }}
+ * }) // returns true
+ */
+function isShortOptionAndValue(arg, options) {
+  validateObject(options, 'options');
 
-  return (0, _slash().default)(
-    _chalk().default.bold(
-      '...' + basename.slice(basename.length - maxLength - 4, basename.length)
-    )
+  if (arg.length <= 2) return false;
+  if (StringPrototypeCharAt(arg, 0) !== '-') return false;
+  if (StringPrototypeCharAt(arg, 1) === '-') return false;
+
+  const shortOption = StringPrototypeCharAt(arg, 1);
+  const longOption = findLongOptionForShort(shortOption, options);
+  return optionsGetOwn(options, longOption, 'type') === 'string';
+}
+
+/**
+ * Find the long option associated with a short option. Looks for a configured
+ * `short` and returns the short option itself if a long option is not found.
+ * @example
+ * findLongOptionForShort('a', {}) // returns 'a'
+ * findLongOptionForShort('b', {
+ *   options: { bar: { short: 'b' } }
+ * }) // returns 'bar'
+ */
+function findLongOptionForShort(shortOption, options) {
+  validateObject(options, 'options');
+  const longOptionEntry = ArrayPrototypeFind(
+    ObjectEntries(options),
+    ({ 1: optionConfig }) => objectGetOwn(optionConfig, 'short') === shortOption
   );
+  return longOptionEntry?.[0] ?? shortOption;
+}
+
+/**
+ * Check if the given option includes a default value
+ * and that option has not been set by the input args.
+ *
+ * @param {string} longOption - long option name e.g. 'foo'
+ * @param {object} optionConfig - the option configuration properties
+ * @param {object} values - option values returned in `values` by parseArgs
+ */
+function useDefaultValueOption(longOption, optionConfig, values) {
+  return objectGetOwn(optionConfig, 'default') !== undefined &&
+    values[longOption] === undefined;
+}
+
+module.exports = {
+  findLongOptionForShort,
+  isLoneLongOption,
+  isLoneShortOption,
+  isLongOptionAndValue,
+  isOptionValue,
+  isOptionLikeValue,
+  isShortOptionAndValue,
+  isShortOptionGroup,
+  useDefaultValueOption,
+  objectGetOwn,
+  optionsGetOwn,
 };
-
-exports.trimAndFormatPath = trimAndFormatPath;
-
-const formatTestPath = (config, testPath) => {
-  const {dirname, basename} = relativePath(config, testPath);
-  return (0, _slash().default)(
-    _chalk().default.dim(dirname + path().sep) + _chalk().default.bold(basename)
-  );
-};
-
-exports.formatTestPath = formatTestPath;
-
-const relativePath = (config, testPath) => {
-  // this function can be called with ProjectConfigs or GlobalConfigs. GlobalConfigs
-  // do not have config.cwd, only config.rootDir. Try using config.cwd, fallback
-  // to config.rootDir. (Also, some unit just use config.rootDir, which is ok)
-  testPath = path().relative(config.cwd || config.rootDir, testPath);
-  const dirname = path().dirname(testPath);
-  const basename = path().basename(testPath);
-  return {
-    basename,
-    dirname
-  };
-};
-
-exports.relativePath = relativePath;
-
-const getValuesCurrentTestCases = (currentTestCases = []) => {
-  let numFailingTests = 0;
-  let numPassingTests = 0;
-  let numPendingTests = 0;
-  let numTodoTests = 0;
-  let numTotalTests = 0;
-  currentTestCases.forEach(testCase => {
-    switch (testCase.testCaseResult.status) {
-      case 'failed': {
-        numFailingTests++;
-        break;
-      }
-
-      case 'passed': {
-        numPassingTests++;
-        break;
-      }
-
-      case 'skipped': {
-        numPendingTests++;
-        break;
-      }
-
-      case 'todo': {
-        numTodoTests++;
-        break;
-      }
-    }
-
-    numTotalTests++;
-  });
-  return {
-    numFailingTests,
-    numPassingTests,
-    numPendingTests,
-    numTodoTests,
-    numTotalTests
-  };
-};
-
-const getSummary = (aggregatedResults, options) => {
-  let runTime = (Date.now() - aggregatedResults.startTime) / 1000;
-
-  if (options && options.roundTime) {
-    runTime = Math.floor(runTime);
-  }
-
-  const valuesForCurrentTestCases = getValuesCurrentTestCases(
-    options === null || options === void 0 ? void 0 : options.currentTestCases
-  );
-  const estimatedTime = (options && options.estimatedTime) || 0;
-  const snapshotResults = aggregatedResults.snapshot;
-  const snapshotsAdded = snapshotResults.added;
-  const snapshotsFailed = snapshotResults.unmatched;
-  const snapshotsOutdated = snapshotResults.unchecked;
-  const snapshotsFilesRemoved = snapshotResults.filesRemoved;
-  const snapshotsDidUpdate = snapshotResults.didUpdate;
-  const snapshotsPassed = snapshotResults.matched;
-  const snapshotsTotal = snapshotResults.total;
-  const snapshotsUpdated = snapshotResults.updated;
-  const suitesFailed = aggregatedResults.numFailedTestSuites;
-  const suitesPassed = aggregatedResults.numPassedTestSuites;
-  const suitesPending = aggregatedResults.numPendingTestSuites;
-  const suitesRun = suitesFailed + suitesPassed;
-  const suitesTotal = aggregatedResults.numTotalTestSuites;
-  const testsFailed = aggregatedResults.numFailedTests;
-  const testsPassed = aggregatedResults.numPassedTests;
-  const testsPending = aggregatedResults.numPendingTests;
-  const testsTodo = aggregatedResults.numTodoTests;
-  const testsTotal = aggregatedResults.numTotalTests;
-  const width = (options && options.width) || 0;
-  const suites =
-    _chalk().default.bold('Test Suites: ') +
-    (suitesFailed
-      ? _chalk().default.bold.red(`${suitesFailed} failed`) + ', '
-      : '') +
-    (suitesPending
-      ? _chalk().default.bold.yellow(`${suitesPending} skipped`) + ', '
-      : '') +
-    (suitesPassed
-      ? _chalk().default.bold.green(`${suitesPassed} passed`) + ', '
-      : '') +
-    (suitesRun !== suitesTotal
-      ? suitesRun + ' of ' + suitesTotal
-      : suitesTotal) +
-    ' total';
-  const updatedTestsFailed =
-    testsFailed + valuesForCurrentTestCases.numFailingTests;
-  const updatedTestsPending =
-    testsPending + valuesForCurrentTestCases.numPendingTests;
-  const updatedTestsTodo = testsTodo + valuesForCurrentTestCases.numTodoTests;
-  const updatedTestsPassed =
-    testsPassed + valuesForCurrentTestCases.numPassingTests;
-  const updatedTestsTotal =
-    testsTotal + valuesForCurrentTestCases.numTotalTests;
-  const tests =
-    _chalk().default.bold('Tests:       ') +
-    (updatedTestsFailed > 0
-      ? _chalk().default.bold.red(`${updatedTestsFailed} failed`) + ', '
-      : '') +
-    (updatedTestsPending > 0
-      ? _chalk().default.bold.yellow(`${updatedTestsPending} skipped`) + ', '
-      : '') +
-    (updatedTestsTodo > 0
-      ? _chalk().default.bold.magenta(`${updatedTestsTodo} todo`) + ', '
-      : '') +
-    (updatedTestsPassed > 0
-      ? _chalk().default.bold.green(`${updatedTestsPassed} passed`) + ', '
-      : '') +
-    `${updatedTestsTotal} total`;
-  const snapshots =
-    _chalk().default.bold('Snapshots:   ') +
-    (snapshotsFailed
-      ? _chalk().default.bold.red(`${snapshotsFailed} failed`) + ', '
-      : '') +
-    (snapshotsOutdated && !snapshotsDidUpdate
-      ? _chalk().default.bold.yellow(`${snapshotsOutdated} obsolete`) + ', '
-      : '') +
-    (snapshotsOutdated && snapshotsDidUpdate
-      ? _chalk().default.bold.green(`${snapshotsOutdated} removed`) + ', '
-      : '') +
-    (snapshotsFilesRemoved && !snapshotsDidUpdate
-      ? _chalk().default.bold.yellow(
-          (0, _jestUtil().pluralize)('file', snapshotsFilesRemoved) +
-            ' obsolete'
-        ) + ', '
-      : '') +
-    (snapshotsFilesRemoved && snapshotsDidUpdate
-      ? _chalk().default.bold.green(
-          (0, _jestUtil().pluralize)('file', snapshotsFilesRemoved) + ' removed'
-        ) + ', '
-      : '') +
-    (snapshotsUpdated
-      ? _chalk().default.bold.green(`${snapshotsUpdated} updated`) + ', '
-      : '') +
-    (snapshotsAdded
-      ? _chalk().default.bold.green(`${snapshotsAdded} written`) + ', '
-      : '') +
-    (snapshotsPassed
-      ? _chalk().default.bold.green(`${snapshotsPassed} passed`) + ', '
-      : '') +
-    `${snapshotsTotal} total`;
-  const time = renderTime(runTime, estimatedTime, width);
-  return [suites, tests, snapshots, time].join('\n');
-};
-
-exports.getSummary = getSummary;
-
-const renderTime = (runTime, estimatedTime, width) => {
-  // If we are more than one second over the estimated time, highlight it.
-  const renderedTime =
-    estimatedTime && runTime >= estimatedTime + 1
-      ? _chalk().default.bold.yellow((0, _jestUtil().formatTime)(runTime, 0))
-      : (0, _jestUtil().formatTime)(runTime, 0);
-  let time = _chalk().default.bold('Time:') + `        ${renderedTime}`;
-
-  if (runTime < estimatedTime) {
-    time += `, estimated ${(0, _jestUtil().formatTime)(estimatedTime, 0)}`;
-  } // Only show a progress bar if the test run is actually going to take
-  // some time.
-
-  if (estimatedTime > 2 && runTime < estimatedTime && width) {
-    const availableWidth = Math.min(PROGRESS_BAR_WIDTH, width);
-    const length = Math.min(
-      Math.floor((runTime / estimatedTime) * availableWidth),
-      availableWidth
-    );
-
-    if (availableWidth >= 2) {
-      time +=
-        '\n' +
-        _chalk().default.green('█').repeat(length) +
-        _chalk()
-          .default.white('█')
-          .repeat(availableWidth - length);
-    }
-  }
-
-  return time;
-}; // word-wrap a string that contains ANSI escape sequences.
-// ANSI escape sequences do not add to the string length.
-
-const wrapAnsiString = (string, terminalWidth) => {
-  if (terminalWidth === 0) {
-    // if the terminal width is zero, don't bother word-wrapping
-    return string;
-  }
-
-  const ANSI_REGEXP = /[\u001b\u009b]\[\d{1,2}m/gu;
-  const tokens = [];
-  let lastIndex = 0;
-  let match;
-
-  while ((match = ANSI_REGEXP.exec(string))) {
-    const ansi = match[0];
-    const index = match['index'];
-
-    if (index != lastIndex) {
-      tokens.push(['string', string.slice(lastIndex, index)]);
-    }
-
-    tokens.push(['ansi', ansi]);
-    lastIndex = index + ansi.length;
-  }
-
-  if (lastIndex != string.length - 1) {
-    tokens.push(['string', string.slice(lastIndex, string.length)]);
-  }
-
-  let lastLineLength = 0;
-  return tokens
-    .reduce(
-      (lines, [kind, token]) => {
-        if (kind === 'string') {
-          if (lastLineLength + token.length > terminalWidth) {
-            while (token.length) {
-              const chunk = token.slice(0, terminalWidth - lastLineLength);
-              const remaining = token.slice(
-                terminalWidth - lastLineLength,
-                token.length
-              );
-              lines[lines.length - 1] += chunk;
-              lastLineLength += chunk.length;
-              token = remaining;
-
-              if (token.length) {
-                lines.push('');
-                lastLineLength = 0;
-              }
-            }
-          } else {
-            lines[lines.length - 1] += token;
-            lastLineLength += token.length;
-          }
-        } else {
-          lines[lines.length - 1] += token;
-        }
-
-        return lines;
-      },
-      ['']
-    )
-    .join('\n');
-};
-
-exports.wrapAnsiString = wrapAnsiString;

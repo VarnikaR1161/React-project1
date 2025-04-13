@@ -1,301 +1,147 @@
-# Change Log
+# Changelog
 
-## 0.5.6
+## [0.11.0](https://github.com/pkgjs/parseargs/compare/v0.10.0...v0.11.0) (2022-10-08)
 
-* Fix for regression when people were using numbers as names in source maps. See
-  #236.
 
-## 0.5.5
+### Features
 
-* Fix "regression" of unsupported, implementation behavior that half the world
-  happens to have come to depend on. See #235.
+* add `default` option parameter ([#142](https://github.com/pkgjs/parseargs/issues/142)) ([cd20847](https://github.com/pkgjs/parseargs/commit/cd20847a00b2f556aa9c085ac83b942c60868ec1))
 
-* Fix regression involving function hoisting in SpiderMonkey. See #233.
+## [0.10.0](https://github.com/pkgjs/parseargs/compare/v0.9.1...v0.10.0) (2022-07-21)
 
-## 0.5.4
 
-* Large performance improvements to source-map serialization. See #228 and #229.
+### Features
 
-## 0.5.3
+* add parsed meta-data to returned properties ([#129](https://github.com/pkgjs/parseargs/issues/129)) ([91bfb4d](https://github.com/pkgjs/parseargs/commit/91bfb4d3f7b6937efab1b27c91c45d1205f1497e))
 
-* Do not include unnecessary distribution files. See
-  commit ef7006f8d1647e0a83fdc60f04f5a7ca54886f86.
+## [0.9.1](https://github.com/pkgjs/parseargs/compare/v0.9.0...v0.9.1) (2022-06-20)
 
-## 0.5.2
 
-* Include browser distributions of the library in package.json's `files`. See
-  issue #212.
+### Bug Fixes
 
-## 0.5.1
+* **runtime:** support node 14+ ([#135](https://github.com/pkgjs/parseargs/issues/135)) ([6a1c5a6](https://github.com/pkgjs/parseargs/commit/6a1c5a6f7cadf2f035e004027e2742e3c4ce554b))
 
-* Fix latent bugs in IndexedSourceMapConsumer.prototype._parseMappings. See
-  ff05274becc9e6e1295ed60f3ea090d31d843379.
+## [0.9.0](https://github.com/pkgjs/parseargs/compare/v0.8.0...v0.9.0) (2022-05-23)
 
-## 0.5.0
 
-* Node 0.8 is no longer supported.
+### ⚠ BREAKING CHANGES
 
-* Use webpack instead of dryice for bundling.
+* drop handling of electron arguments (#121)
 
-* Big speedups serializing source maps. See pull request #203.
+### Code Refactoring
 
-* Fix a bug with `SourceMapConsumer.prototype.sourceContentFor` and sources that
-  explicitly start with the source root. See issue #199.
+* drop handling of electron arguments ([#121](https://github.com/pkgjs/parseargs/issues/121)) ([a2ffd53](https://github.com/pkgjs/parseargs/commit/a2ffd537c244a062371522b955acb45a404fc9f2))
 
-## 0.4.4
+## [0.8.0](https://github.com/pkgjs/parseargs/compare/v0.7.1...v0.8.0) (2022-05-16)
 
-* Fix an issue where using a `SourceMapGenerator` after having created a
-  `SourceMapConsumer` from it via `SourceMapConsumer.fromSourceMap` failed. See
-  issue #191.
 
-* Fix an issue with where `SourceMapGenerator` would mistakenly consider
-  different mappings as duplicates of each other and avoid generating them. See
-  issue #192.
+### ⚠ BREAKING CHANGES
 
-## 0.4.3
+* switch type:string option arguments to greedy, but with error for suspect cases in strict mode (#88)
+* positionals now opt-in when strict:true (#116)
+* create result.values with null prototype (#111)
 
-* A very large number of performance improvements, particularly when parsing
-  source maps. Collectively about 75% of time shaved off of the source map
-  parsing benchmark!
+### Features
 
-* Fix a bug in `SourceMapConsumer.prototype.allGeneratedPositionsFor` and fuzzy
-  searching in the presence of a column option. See issue #177.
+* create result.values with null prototype ([#111](https://github.com/pkgjs/parseargs/issues/111)) ([9d539c3](https://github.com/pkgjs/parseargs/commit/9d539c3d57f269c160e74e0656ad4fa84ff92ec2))
+* positionals now opt-in when strict:true ([#116](https://github.com/pkgjs/parseargs/issues/116)) ([3643338](https://github.com/pkgjs/parseargs/commit/364333826b746e8a7dc5505b4b22fd19ac51df3b))
+* switch type:string option arguments to greedy, but with error for suspect cases in strict mode ([#88](https://github.com/pkgjs/parseargs/issues/88)) ([c2b5e72](https://github.com/pkgjs/parseargs/commit/c2b5e72161991dfdc535909f1327cc9b970fe7e8))
 
-* Fix a bug with joining a source and its source root when the source is above
-  the root. See issue #182.
+### [0.7.1](https://github.com/pkgjs/parseargs/compare/v0.7.0...v0.7.1) (2022-04-15)
 
-* Add the `SourceMapConsumer.prototype.hasContentsOfAllSources` method to
-  determine when all sources' contents are inlined into the source map. See
-  issue #190.
 
-## 0.4.2
+### Bug Fixes
 
-* Add an `.npmignore` file so that the benchmarks aren't pulled down by
-  dependent projects. Issue #169.
+* resist pollution ([#106](https://github.com/pkgjs/parseargs/issues/106)) ([ecf2dec](https://github.com/pkgjs/parseargs/commit/ecf2dece0a9f2a76d789384d5d71c68ffe64022a))
 
-* Add an optional `column` argument to
-  `SourceMapConsumer.prototype.allGeneratedPositionsFor` and better handle lines
-  with no mappings. Issues #172 and #173.
+## [0.7.0](https://github.com/pkgjs/parseargs/compare/v0.6.0...v0.7.0) (2022-04-13)
 
-## 0.4.1
 
-* Fix accidentally defining a global variable. #170.
+### Features
 
-## 0.4.0
+* Add strict mode to parser ([#74](https://github.com/pkgjs/parseargs/issues/74)) ([8267d02](https://github.com/pkgjs/parseargs/commit/8267d02083a87b8b8a71fcce08348d1e031ea91c))
 
-* The default direction for fuzzy searching was changed back to its original
-  direction. See #164.
+## [0.6.0](https://github.com/pkgjs/parseargs/compare/v0.5.0...v0.6.0) (2022-04-11)
 
-* There is now a `bias` option you can supply to `SourceMapConsumer` to control
-  the fuzzy searching direction. See #167.
 
-* About an 8% speed up in parsing source maps. See #159.
+### ⚠ BREAKING CHANGES
 
-* Added a benchmark for parsing and generating source maps.
+* rework results to remove redundant `flags` property and store value true for boolean options (#83)
+* switch to existing ERR_INVALID_ARG_VALUE (#97)
 
-## 0.3.0
+### Code Refactoring
 
-* Change the default direction that searching for positions fuzzes when there is
-  not an exact match. See #154.
+* rework results to remove redundant `flags` property and store value true for boolean options ([#83](https://github.com/pkgjs/parseargs/issues/83)) ([be153db](https://github.com/pkgjs/parseargs/commit/be153dbed1d488cb7b6e27df92f601ba7337713d))
+* switch to existing ERR_INVALID_ARG_VALUE ([#97](https://github.com/pkgjs/parseargs/issues/97)) ([084a23f](https://github.com/pkgjs/parseargs/commit/084a23f9fde2da030b159edb1c2385f24579ce40))
 
-* Support for environments using json2.js for JSON serialization. See #156.
+## [0.5.0](https://github.com/pkgjs/parseargs/compare/v0.4.0...v0.5.0) (2022-04-10)
 
-## 0.2.0
 
-* Support for consuming "indexed" source maps which do not have any remote
-  sections. See pull request #127. This introduces a minor backwards
-  incompatibility if you are monkey patching `SourceMapConsumer.prototype`
-  methods.
+### ⚠ BREAKING CHANGES
 
-## 0.1.43
+* Require type to be specified for each supplied option (#95)
 
-* Performance improvements for `SourceMapGenerator` and `SourceNode`. See issue
-  #148 for some discussion and issues #150, #151, and #152 for implementations.
+### Features
 
-## 0.1.42
+* Require type to be specified for each supplied option ([#95](https://github.com/pkgjs/parseargs/issues/95)) ([02cd018](https://github.com/pkgjs/parseargs/commit/02cd01885b8aaa59f2db8308f2d4479e64340068))
 
-* Fix an issue where `SourceNode`s from different versions of the source-map
-  library couldn't be used in conjunction with each other. See issue #142.
+## [0.4.0](https://github.com/pkgjs/parseargs/compare/v0.3.0...v0.4.0) (2022-03-12)
 
-## 0.1.41
 
-* Fix a bug with getting the source content of relative sources with a "./"
-  prefix. See issue #145 and [Bug 1090768](bugzil.la/1090768).
+### ⚠ BREAKING CHANGES
 
-* Add the `SourceMapConsumer.prototype.computeColumnSpans` method to compute the
-  column span of each mapping.
+* parsing, revisit short option groups, add support for combined short and value (#75)
+* restructure configuration to take options bag (#63)
 
-* Add the `SourceMapConsumer.prototype.allGeneratedPositionsFor` method to find
-  all generated positions associated with a given original source and line.
+### Code Refactoring
 
-## 0.1.40
+* parsing, revisit short option groups, add support for combined short and value ([#75](https://github.com/pkgjs/parseargs/issues/75)) ([a92600f](https://github.com/pkgjs/parseargs/commit/a92600fa6c214508ab1e016fa55879a314f541af))
+* restructure configuration to take options bag ([#63](https://github.com/pkgjs/parseargs/issues/63)) ([b412095](https://github.com/pkgjs/parseargs/commit/b4120957d90e809ee8b607b06e747d3e6a6b213e))
 
-* Performance improvements for parsing source maps in SourceMapConsumer.
+## [0.3.0](https://github.com/pkgjs/parseargs/compare/v0.2.0...v0.3.0) (2022-02-06)
 
-## 0.1.39
 
-* Fix a bug where setting a source's contents to null before any source content
-  had been set before threw a TypeError. See issue #131.
+### Features
 
-## 0.1.38
+* **parser:** support short-option groups ([#59](https://github.com/pkgjs/parseargs/issues/59)) ([882067b](https://github.com/pkgjs/parseargs/commit/882067bc2d7cbc6b796f8e5a079a99bc99d4e6ba))
 
-* Fix a bug where finding relative paths from an empty path were creating
-  absolute paths. See issue #129.
+## [0.2.0](https://github.com/pkgjs/parseargs/compare/v0.1.1...v0.2.0) (2022-02-05)
 
-## 0.1.37
 
-* Fix a bug where if the source root was an empty string, relative source paths
-  would turn into absolute source paths. Issue #124.
+### Features
 
-## 0.1.36
+* basic support for shorts ([#50](https://github.com/pkgjs/parseargs/issues/50)) ([a2f36d7](https://github.com/pkgjs/parseargs/commit/a2f36d7da4145af1c92f76806b7fe2baf6beeceb))
 
-* Allow the `names` mapping property to be an empty string. Issue #121.
 
-## 0.1.35
+### Bug Fixes
 
-* A third optional parameter was added to `SourceNode.fromStringWithSourceMap`
-  to specify a path that relative sources in the second parameter should be
-  relative to. Issue #105.
+* always store value for a=b ([#43](https://github.com/pkgjs/parseargs/issues/43)) ([a85e8dc](https://github.com/pkgjs/parseargs/commit/a85e8dc06379fd2696ee195cc625de8fac6aee42))
+* support single dash as positional ([#49](https://github.com/pkgjs/parseargs/issues/49)) ([d795bf8](https://github.com/pkgjs/parseargs/commit/d795bf877d068fd67aec381f30b30b63f97109ad))
 
-* If no file property is given to a `SourceMapGenerator`, then the resulting
-  source map will no longer have a `null` file property. The property will
-  simply not exist. Issue #104.
+### [0.1.1](https://github.com/pkgjs/parseargs/compare/v0.1.0...v0.1.1) (2022-01-25)
 
-* Fixed a bug where consecutive newlines were ignored in `SourceNode`s.
-  Issue #116.
 
-## 0.1.34
+### Bug Fixes
 
-* Make `SourceNode` work with windows style ("\r\n") newlines. Issue #103.
+* only use arrays in results for multiples ([#42](https://github.com/pkgjs/parseargs/issues/42)) ([c357584](https://github.com/pkgjs/parseargs/commit/c357584847912506319ed34a0840080116f4fd65))
 
-* Fix bug involving source contents and the
-  `SourceMapGenerator.prototype.applySourceMap`. Issue #100.
+## 0.1.0 (2022-01-22)
 
-## 0.1.33
 
-* Fix some edge cases surrounding path joining and URL resolution.
+### Features
 
-* Add a third parameter for relative path to
-  `SourceMapGenerator.prototype.applySourceMap`.
+* expand scenarios covered by default arguments for environments ([#20](https://github.com/pkgjs/parseargs/issues/20)) ([582ada7](https://github.com/pkgjs/parseargs/commit/582ada7be0eca3a73d6e0bd016e7ace43449fa4c))
+* update readme and include contributing guidelines ([8edd6fc](https://github.com/pkgjs/parseargs/commit/8edd6fc863cd705f6fac732724159ebe8065a2b0))
 
-* Fix issues with mappings and EOLs.
 
-## 0.1.32
+### Bug Fixes
 
-* Fixed a bug where SourceMapConsumer couldn't handle negative relative columns
-  (issue 92).
+* do not strip excess leading dashes on long option names ([#21](https://github.com/pkgjs/parseargs/issues/21)) ([f848590](https://github.com/pkgjs/parseargs/commit/f848590ebf3249ed5979ff47e003fa6e1a8ec5c0))
+* name & readme ([3f057c1](https://github.com/pkgjs/parseargs/commit/3f057c1b158a1bdbe878c64b57460c58e56e465f))
+* package.json values ([9bac300](https://github.com/pkgjs/parseargs/commit/9bac300e00cd76c77076bf9e75e44f8929512da9))
+* update readme name ([957d8d9](https://github.com/pkgjs/parseargs/commit/957d8d96e1dcb48297c0a14345d44c0123b2883e))
 
-* Fixed test runner to actually report number of failed tests as its process
-  exit code.
 
-* Fixed a typo when reporting bad mappings (issue 87).
+### Build System
 
-## 0.1.31
-
-* Delay parsing the mappings in SourceMapConsumer until queried for a source
-  location.
-
-* Support Sass source maps (which at the time of writing deviate from the spec
-  in small ways) in SourceMapConsumer.
-
-## 0.1.30
-
-* Do not join source root with a source, when the source is a data URI.
-
-* Extend the test runner to allow running single specific test files at a time.
-
-* Performance improvements in `SourceNode.prototype.walk` and
-  `SourceMapConsumer.prototype.eachMapping`.
-
-* Source map browser builds will now work inside Workers.
-
-* Better error messages when attempting to add an invalid mapping to a
-  `SourceMapGenerator`.
-
-## 0.1.29
-
-* Allow duplicate entries in the `names` and `sources` arrays of source maps
-  (usually from TypeScript) we are parsing. Fixes github issue 72.
-
-## 0.1.28
-
-* Skip duplicate mappings when creating source maps from SourceNode; github
-  issue 75.
-
-## 0.1.27
-
-* Don't throw an error when the `file` property is missing in SourceMapConsumer,
-  we don't use it anyway.
-
-## 0.1.26
-
-* Fix SourceNode.fromStringWithSourceMap for empty maps. Fixes github issue 70.
-
-## 0.1.25
-
-* Make compatible with browserify
-
-## 0.1.24
-
-* Fix issue with absolute paths and `file://` URIs. See
-  https://bugzilla.mozilla.org/show_bug.cgi?id=885597
-
-## 0.1.23
-
-* Fix issue with absolute paths and sourcesContent, github issue 64.
-
-## 0.1.22
-
-* Ignore duplicate mappings in SourceMapGenerator. Fixes github issue 21.
-
-## 0.1.21
-
-* Fixed handling of sources that start with a slash so that they are relative to
-  the source root's host.
-
-## 0.1.20
-
-* Fixed github issue #43: absolute URLs aren't joined with the source root
-  anymore.
-
-## 0.1.19
-
-* Using Travis CI to run tests.
-
-## 0.1.18
-
-* Fixed a bug in the handling of sourceRoot.
-
-## 0.1.17
-
-* Added SourceNode.fromStringWithSourceMap.
-
-## 0.1.16
-
-* Added missing documentation.
-
-* Fixed the generating of empty mappings in SourceNode.
-
-## 0.1.15
-
-* Added SourceMapGenerator.applySourceMap.
-
-## 0.1.14
-
-* The sourceRoot is now handled consistently.
-
-## 0.1.13
-
-* Added SourceMapGenerator.fromSourceMap.
-
-## 0.1.12
-
-* SourceNode now generates empty mappings too.
-
-## 0.1.11
-
-* Added name support to SourceNode.
-
-## 0.1.10
-
-* Added sourcesContent support to the customer and generator.
+* first release as minor ([421c6e2](https://github.com/pkgjs/parseargs/commit/421c6e2569a8668ad14fac5a5af5be60479a7571))
