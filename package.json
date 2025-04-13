@@ -1,40 +1,65 @@
 {
-  "name": "bmical",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-scripts": "5.0.1",
-    "retry": "^0.13.1",
-    "web-vitals": "^2.1.4"
+  "name": "@humanwhocodes/module-importer",
+  "version": "1.0.1",
+  "description": "Universal module importer for Node.js",
+  "main": "src/module-importer.cjs",
+  "module": "src/module-importer.js",
+  "type": "module",
+  "types": "dist/module-importer.d.ts",
+  "exports": {
+    "require": "./src/module-importer.cjs",
+    "import": "./src/module-importer.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ]
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/nzakas"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "rollup -c && tsc",
+    "prepare": "npm run build",
+    "lint": "eslint src/ tests/",
+    "test:unit": "c8 mocha tests/module-importer.test.js",
+    "test:build": "node tests/pkg.test.cjs && node tests/pkg.test.mjs",
+    "test": "npm run test:unit && npm run test:build"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/humanwhocodes/module-importer.git"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "keywords": [
+    "modules",
+    "esm",
+    "commonjs"
+  ],
+  "engines": {
+    "node": ">=12.22"
+  },
+  "author": "Nicholas C. Zaks",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^18.7.6",
+    "c8": "7.12.0",
+    "chai": "4.3.6",
+    "eslint": "8.22.0",
+    "lint-staged": "13.0.3",
+    "mocha": "9.2.2",
+    "rollup": "2.78.0",
+    "typescript": "4.7.4",
+    "yorkie": "2.0.0"
   }
 }

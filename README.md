@@ -1,70 +1,80 @@
-# Getting Started with Create React App
+# ModuleImporter
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+by [Nicholas C. Zakas](https://humanwhocodes.com)
 
-## Available Scripts
+If you find this useful, please consider supporting my work with a [donation](https://humanwhocodes.com/donate).
 
-In the project directory, you can run:
+## Description
 
-### `npm start`
+A utility for seamlessly importing modules in Node.js regardless if they are CommonJS or ESM format. Under the hood, this uses `import()` and relies on Node.js's CommonJS compatibility to work correctly. This ensures that the correct locations and formats are used for CommonJS so you can call one method and not worry about any compatibility issues.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The problem with the default `import()` is that it always resolves relative to the file location in which it is called. If you want to resolve from a different location, you need to jump through a few hoops to achieve that. This package makes it easy to both resolve and import modules from any directory.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Usage
 
-### `npm test`
+### Node.js
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Install using [npm][npm] or [yarn][yarn]:
 
-### `npm run build`
+```
+npm install @humanwhocodes/module-importer
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# or
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+yarn add @humanwhocodes/module-importer
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Import into your Node.js project:
 
-### `npm run eject`
+```js
+// CommonJS
+const { ModuleImporter } = require("@humanwhocodes/module-importer");
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+// ESM
+import { ModuleImporter } from "@humanwhocodes/module-importer";
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Bun
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Install using this command:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+bun add @humanwhocodes/module-importer
+```
 
-## Learn More
+Import into your Bun project:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```js
+import { ModuleImporter } from "@humanwhocodes/module-importer";
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## API
 
-### Code Splitting
+After importing, create a new instance of `ModuleImporter` to start emitting events:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```js
+// cwd can be omitted to use process.cwd()
+const importer = new ModuleImporter(cwd);
 
-### Analyzing the Bundle Size
+// you can resolve the location of any package
+const location = importer.resolve("./some-file.cjs");
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+// you can also import directly
+const module = importer.import("./some-file.cjs");
+```
 
-### Making a Progressive Web App
+For both `resolve()` and `import()`, you can pass in package names and filenames.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Developer Setup
 
-### Advanced Configuration
+1. Fork the repository
+2. Clone your fork
+3. Run `npm install` to setup dependencies
+4. Run `npm test` to run tests
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## License
 
-### Deployment
+Apache 2.0
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+[npm]: https://npmjs.com/
+[yarn]: https://yarnpkg.com/
