@@ -1,108 +1,51 @@
-// This is a patch for mozilla/source-map#349 -
-// internally, it uses the existence of the `fetch` global to toggle browser behaviours.
-// That check, however, will break when `fetch` polyfills are used for SSR setups.
-// We "reset" the polyfill here to ensure it won't interfere with source-map generation.
-const originalFetch = global.fetch;
-delete global.fetch;
+"use strict";
 
-const { getOptions } = require('loader-utils');
-const { validate: validateOptions } = require('schema-utils');
-const { SourceMapConsumer, SourceNode } = require('source-map');
-const {
-  getIdentitySourceMap,
-  getModuleSystem,
-  getRefreshModuleRuntime,
-  normalizeOptions,
-} = require('./utils');
-const schema = require('./options.json');
+module.exports = tarjan;
 
-const RefreshRuntimePath = require
-  .resolve('react-refresh')
-  .replace(/\\/g, '/')
-  .replace(/'/g, "\\'");
+// Adapted from https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm#The_algorithm_in_pseudocode
 
-/**
- * A simple Webpack loader to inject react-refresh HMR code into modules.
- *
- * [Reference for Loader API](https://webpack.js.org/api/loaders/)
- * @this {import('webpack').LoaderContext<import('./types').ReactRefreshLoaderOptions>}
- * @param {string} source The original module source code.
- * @param {import('source-map').RawSourceMap} [inputSourceMap] The source map of the module.
- * @param {*} [meta] The loader metadata passed in.
- * @returns {void}
- */
-function ReactRefreshLoader(source, inputSourceMap, meta) {
-  let options = getOptions(this);
-  validateOptions(schema, options, {
-    baseDataPath: 'options',
-    name: 'React Refresh Loader',
-  });
+function tarjan(graph) {
+  const indices = new Map();
+  const lowlinks = new Map();
+  const onStack = new Set();
+  const stack = [];
+  const scc = [];
+  let idx = 0;
 
-  options = normalizeOptions(options);
+  function strongConnect(v) {
+    indices.set(v, idx);
+    lowlinks.set(v, idx);
+    idx++;
+    stack.push(v);
+    onStack.add(v);
 
-  const callback = this.async();
-
-  const { ModuleFilenameHelpers, Template } = this._compiler.webpack || require('webpack');
-
-  const RefreshSetupRuntimes = {
-    cjs: Template.asString(
-      `__webpack_require__.$Refresh$.runtime = require('${RefreshRuntimePath}');`
-    ),
-    esm: Template.asString([
-      `import * as __react_refresh_runtime__ from '${RefreshRuntimePath}';`,
-      `__webpack_require__.$Refresh$.runtime = __react_refresh_runtime__;`,
-    ]),
-  };
-
-  /**
-   * @this {import('webpack').LoaderContext<import('./types').ReactRefreshLoaderOptions>}
-   * @param {string} source
-   * @param {import('source-map').RawSourceMap} [inputSourceMap]
-   * @returns {Promise<[string, import('source-map').RawSourceMap]>}
-   */
-  async function _loader(source, inputSourceMap) {
-    /** @type {'esm' | 'cjs'} */
-    const moduleSystem = await getModuleSystem.call(this, ModuleFilenameHelpers, options);
-
-    const RefreshSetupRuntime = RefreshSetupRuntimes[moduleSystem];
-    const RefreshModuleRuntime = getRefreshModuleRuntime(Template, {
-      const: options.const,
-      moduleSystem,
-    });
-
-    if (this.sourceMap) {
-      let originalSourceMap = inputSourceMap;
-      if (!originalSourceMap) {
-        originalSourceMap = getIdentitySourceMap(source, this.resourcePath);
+    const deps = graph.get(v);
+    for (const dep of deps) {
+      if (!indices.has(dep)) {
+        strongConnect(dep);
+        lowlinks.set(v, Math.min(lowlinks.get(v), lowlinks.get(dep)));
+      } else if (onStack.has(dep)) {
+        lowlinks.set(v, Math.min(lowlinks.get(v), indices.get(dep)));
       }
+    }
 
-      return SourceMapConsumer.with(originalSourceMap, undefined, (consumer) => {
-        const node = SourceNode.fromStringWithSourceMap(source, consumer);
-
-        node.prepend([RefreshSetupRuntime, '\n\n']);
-        node.add(['\n\n', RefreshModuleRuntime]);
-
-        const { code, map } = node.toStringWithSourceMap();
-        return [code, map.toJSON()];
-      });
-    } else {
-      return [[RefreshSetupRuntime, source, RefreshModuleRuntime].join('\n\n'), inputSourceMap];
+    if (lowlinks.get(v) === indices.get(v)) {
+      const vertices = new Set();
+      let w = null;
+      while (v !== w) {
+        w = stack.pop();
+        onStack.delete(w);
+        vertices.add(w);
+      }
+      scc.push(vertices);
     }
   }
 
-  _loader.call(this, source, inputSourceMap).then(
-    ([code, map]) => {
-      callback(null, code, map, meta);
-    },
-    (error) => {
-      callback(error);
+  for (const v of graph.keys()) {
+    if (!indices.has(v)) {
+      strongConnect(v);
     }
-  );
-}
+  }
 
-module.exports = ReactRefreshLoader;
-
-// Restore the original value of the `fetch` global, if it exists
-if (originalFetch) {
-  global.fetch = originalFetch;
+  return scc;
 }

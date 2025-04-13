@@ -1,75 +1,77 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-import type { RawSourceMap } from 'source-map';
-import type { Config, TransformTypes } from '@jest/types';
-export interface ShouldInstrumentOptions extends Pick<Config.GlobalConfig, 'collectCoverage' | 'collectCoverageFrom' | 'collectCoverageOnlyFrom' | 'coverageProvider'> {
-    changedFiles?: Set<Config.Path>;
-    sourcesRelatedToTestsInChangedFiles?: Set<Config.Path>;
-}
-export interface Options extends ShouldInstrumentOptions, CallerTransformOptions {
-    isInternalModule?: boolean;
-}
-interface FixedRawSourceMap extends Omit<RawSourceMap, 'version'> {
-    version: number;
-}
-export declare type TransformedSource = {
-    code: string;
-    map?: FixedRawSourceMap | string | null;
-} | string;
-export declare type TransformResult = TransformTypes.TransformResult;
-export interface CallerTransformOptions {
-    supportsDynamicImport: boolean;
-    supportsExportNamespaceFrom: boolean;
-    supportsStaticESM: boolean;
-    supportsTopLevelAwait: boolean;
-}
-export interface ReducedTransformOptions extends CallerTransformOptions {
-    instrument: boolean;
-}
-export interface RequireAndTranspileModuleOptions extends ReducedTransformOptions {
-    applyInteropRequireDefault: boolean;
-}
-export declare type StringMap = Map<string, string>;
-export interface TransformOptions<OptionType = unknown> extends ReducedTransformOptions {
-    /** a cached file system which is used in jest-runtime - useful to improve performance */
-    cacheFS: StringMap;
-    config: Config.ProjectConfig;
-    /** A stringified version of the configuration - useful in cache busting */
-    configString: string;
-    /** the options passed through Jest's config by the user */
-    transformerConfig: OptionType;
-}
-export interface SyncTransformer<OptionType = unknown> {
-    /**
-     * Indicates if the transformer is capable of instrumenting the code for code coverage.
-     *
-     * If V8 coverage is _not_ active, and this is `true`, Jest will assume the code is instrumented.
-     * If V8 coverage is _not_ active, and this is `false`. Jest will instrument the code returned by this transformer using Babel.
-     */
-    canInstrument?: boolean;
-    createTransformer?: (options?: OptionType) => SyncTransformer<OptionType>;
-    getCacheKey?: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => string;
-    getCacheKeyAsync?: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => Promise<string>;
-    process: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => TransformedSource;
-    processAsync?: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => Promise<TransformedSource>;
-}
-export interface AsyncTransformer<OptionType = unknown> {
-    /**
-     * Indicates if the transformer is capable of instrumenting the code for code coverage.
-     *
-     * If V8 coverage is _not_ active, and this is `true`, Jest will assume the code is instrumented.
-     * If V8 coverage is _not_ active, and this is `false`. Jest will instrument the code returned by this transformer using Babel.
-     */
-    canInstrument?: boolean;
-    createTransformer?: (options?: OptionType) => AsyncTransformer<OptionType>;
-    getCacheKey?: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => string;
-    getCacheKeyAsync?: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => Promise<string>;
-    process?: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => TransformedSource;
-    processAsync: (sourceText: string, sourcePath: Config.Path, options: TransformOptions<OptionType>) => Promise<TransformedSource>;
-}
-export declare type Transformer<OptionType = unknown> = SyncTransformer<OptionType> | AsyncTransformer<OptionType>;
-export {};
+export type ErrorOverlayOptions = {
+  /**
+   * Path to a JS file that sets up the error overlay integration.
+   */
+  entry?: string | false | undefined;
+  /**
+   * The error overlay module to use.
+   */
+  module?: string | false | undefined;
+  /**
+   * The socket host to use (WDS only).
+   */
+  sockHost?: string | undefined;
+  /**
+   * Path to a JS file that sets up the Webpack socket integration.
+   */
+  sockIntegration?:
+    | import('type-fest').LiteralUnion<false | 'wds' | 'whm' | 'wps', string>
+    | undefined;
+  /**
+   * The socket path to use (WDS only).
+   */
+  sockPath?: string | undefined;
+  /**
+   * The socket port to use (WDS only).
+   */
+  sockPort?: number | undefined;
+  /**
+   * The socket protocol to use (WDS only).
+   */
+  sockProtocol?: 'http' | 'https' | 'ws' | 'wss' | undefined;
+  /**
+   * Uses a polyfill for the DOM URL API (WDS only).
+   */
+  useURLPolyfill?: boolean | undefined;
+};
+export type NormalizedErrorOverlayOptions = import('type-fest').SetRequired<
+  ErrorOverlayOptions,
+  'entry' | 'module' | 'sockIntegration'
+>;
+export type ReactRefreshPluginOptions = {
+  /**
+   * Enables strict ES Modules compatible runtime.
+   */
+  esModule?: boolean | import('../loader/types').ESModuleOptions | undefined;
+  /**
+   * Files to explicitly exclude from processing.
+   */
+  exclude?: string | RegExp | (string | RegExp)[] | undefined;
+  /**
+   * Enables the plugin forcefully.
+   */
+  forceEnable?: boolean | undefined;
+  /**
+   * Files to explicitly include for processing.
+   */
+  include?: string | RegExp | (string | RegExp)[] | undefined;
+  /**
+   * Name of the library bundle.
+   */
+  library?: string | undefined;
+  /**
+   * Modifies how the error overlay integration works in the plugin.
+   */
+  overlay?: boolean | ErrorOverlayOptions | undefined;
+};
+export type OverlayOverrides = {
+  /**
+   * Modifies how the error overlay integration works in the plugin.
+   */
+  overlay: false | NormalizedErrorOverlayOptions;
+};
+export type NormalizedPluginOptions = import('type-fest').SetRequired<
+  import('type-fest').Except<ReactRefreshPluginOptions, 'overlay'>,
+  'exclude' | 'include'
+> &
+  OverlayOverrides;
