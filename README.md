@@ -1,252 +1,353 @@
-# @rushstack/eslint-patch
+# `@sinonjs/fake-timers`
 
-Enhance [ESLint](https://eslint.org/) with better support for large scale monorepos!
+[![CircleCI](https://circleci.com/gh/sinonjs/fake-timers.svg?style=svg)](https://circleci.com/gh/sinonjs/fake-timers)
+[![codecov](https://codecov.io/gh/sinonjs/fake-timers/branch/master/graph/badge.svg)](https://codecov.io/gh/sinonjs/fake-timers)
+<a href="CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg" alt="Contributor Covenant" /></a>
 
-This is a runtime patch that enables new/experimental features for ESLint.  It operates as a "monkey patch"
-that gets loaded with **.eslintrc.js** and modifies the ESLint engine in memory.  This approach works
-with your existing ESLint version (no need to install a forked ESLint), and is fully interoperable with
-companion tools such as the ESLint extensions for VS Code and WebStorm.
+JavaScript implementation of the timer APIs; `setTimeout`, `clearTimeout`, `setImmediate`, `clearImmediate`, `setInterval`, `clearInterval`, `requestAnimationFrame`, `cancelAnimationFrame`, `requestIdleCallback`, and `cancelIdleCallback`, along with a clock instance that controls the flow of time. FakeTimers also provides a `Date` implementation that gets its time from the clock.
 
-This package provides several independently loadable features:
+In addition in browser environment `@sinonjs/fake-timers` provides a `performance` implementation that gets its time from the clock. In Node environments FakeTimers provides a `nextTick` implementation that is synchronized with the clock - and a `process.hrtime` shim that works with the clock.
 
-- **eslint-bulk-suppressions**: enables you to roll out new lint rules in your monorepo without having to
-  clutter up source files with thousands of machine-generated `// eslint-ignore-next-line` directives.
-  Instead, the "bulk suppressions" for legacy violations are managed in a separate file called
-  **.eslint-bulk-suppressions.json**.
+`@sinonjs/fake-timers` can be used to simulate passing time in automated tests and other
+situations where you want the scheduling semantics, but don't want to actually
+wait.
 
-- **modern-module-resolution**: allows an ESLint config package to provide plugin dependencies, avoiding the
-  problem where hundreds of projects in a monorepo need to copy+paste the same `"devDependencies"` in
-  every **package.json** file.
+`@sinonjs/fake-timers` is extracted from [Sinon.JS](https://github.com/sinonjs/sinon.js) and targets the [same runtimes](https://sinonjs.org/releases/latest/#supported-runtimes).
 
-  > **NOTE:** ESLint 8.21.0 has now introduced a new `ESLINT_USE_FLAT_CONFIG` mode that may reduce the need
-  for the `modern-module-resolution` patch.
+## Autocomplete, IntelliSense and TypeScript definitions
 
-- **custom-config-package-names**: enables [rig packages](https://heft.rushstack.io/pages/intro/rig_packages/)
-  to provide shareable configs for ESLint, by removing the requirement that `eslint-config` must appear in
-  the NPM package name.
+Version 7 introduced JSDoc to the codebase. This should provide autocomplete and type suggestions in supporting IDEs. If you need more elaborate type support, TypeScript definitions for the Sinon projects are independently maintained by the Definitely Types community:
 
-Contributions welcome!  If you have more ideas for experimental ESLint enhancements that might benefit
-large scale monorepos, consider adding them to this patch.
-
-
-# eslint-bulk-suppressions feature
-
-<!-- ## is correct here, but ### looks better in NPM's rendering -->
-
-### What it does
-
-As your monorepo evolves and grows, there's an ongoing need to expand and improve lint rules.  But whenever a
-new rule is enabled, there may be hundreds or thousands of "legacy violations" in existing source files.
-How to handle that? We could fix the old code, but that's often prohibitively expensive and may even cause
-regressions. We could disable the rule for those projects or files, but we want new code to follow the rule.
-An effective solution is to inject thousands of `// eslint-ignore-next-line` lines, but these "bulk suppressions"
-have an unintended side effect:  It normalizes the practice of suppressing lint rules.  If people get used to
-seeing `// eslint-ignore-next-line` everywhere, nobody will notice when humans suppress the rules for new code.
-That would undermine the mission of establishing better code standards.
-
-The `eslint-bulk-suppressions` feature introduces a way to store machine-generated suppressions in a separate
-file **.eslint-bulk-suppressions.json** which can even be protected using `CODEOWNERS` policies, since that file
-will generally only change when new lint rules are introduced, or in occasional circumstances when existing files
-are being moved or renamed.  In this way `// eslint-ignore-next-line` remains a directive written by humans
-and hopefully rarely needed.
-
-
-### Why it's a patch
-
-As with `modern-module-resolution`, our hope is for this feature to eventually be incorporated as an official
-feature of ESLint.  Starting out as an unofficial patch allows faster iteration and community feedback.
-
-
-### How to use it
-
-1. Add `@rushstack/eslint-patch` as a dependency of your project:
-
-   ```bash
-   cd your-project
-   npm install --save-dev @rushstack/eslint-patch
-   ```
-
-2. Globally install the [`@rushstack/eslint-bulk`](https://www.npmjs.com/package/@rushstack/eslint-bulk)
-   command line interface (CLI) package. For example:
-
-   ```bash
-   npm install --global @rushstack/eslint-bulk
-   ```
-
-   This installs the `eslint-bulk` shell command for managing the **.eslint-bulk-suppressions.json** files.
-   With it you can generate new suppressions as well as "prune" old suppressions that are no longer needed.
-
-3. Load the patch by adding the following `require()` statement as the first line of
-   your **.eslintrc.js** file.  For example:
-
-   **.eslintrc.js**
-   ```js
-   require("@rushstack/eslint-patch/eslint-bulk-suppressions"); // 👈 add this line
-
-   module.exports = {
-     rules: {
-       rule1: 'error',
-       rule2: 'warning'
-     },
-     parserOptions: { tsconfigRootDir: __dirname }
-   };
-   ```
-
-Typical workflow:
-
-1. Checkout your `main` branch, which is in a clean state where ESLint reports no violations.
-2. Update your configuration to enable the latest lint rules; ESLint now reports thousands of legacy violations.
-3. Run `eslint-bulk suppress --all ./src` to update **.eslint-bulk-suppressions.json.**
-4. ESLint now no longer reports violations, so commit the results to Git and merge your pull request.
-5. Over time, engineers may improve some of the suppressed code, in which case the associated suppressions are no longer needed.
-6. Run `eslint-bulk prune` periodically to find and remove unnecessary suppressions from **.eslint-bulk-suppressions.json**, ensuring that new violations will now get caught in those scopes.
-
-### "eslint-bulk suppress" command
-
-```bash
-eslint-bulk suppress --rule NAME1 [--rule NAME2...] PATH1 [PATH2...]
-eslint-bulk suppress --all PATH1 [PATH2...]
+```
+npm install -D @types/sinonjs__fake-timers
 ```
 
-Use this command to automatically generate bulk suppressions for the specified lint rules and file paths.
-The path argument is a [glob pattern](https://en.wikipedia.org/wiki/Glob_(programming)) with the same syntax
-as path arguments for the `eslint` command.
+## Installation
 
+`@sinonjs/fake-timers` can be used in both Node and browser environments. Installation is as easy as
 
-### "eslint-bulk prune" command
-
-Use this command to automatically delete all unnecessary suppression entries in all
-**.eslint-bulk-suppressions.json** files under the current working directory.
-
-```bash
-eslint-bulk prune
+```sh
+npm install @sinonjs/fake-timers
 ```
 
-### Implementation notes
+If you want to use `@sinonjs/fake-timers` in a browser you can either build your own bundle or use [Skypack](https://www.skypack.dev).
 
-The `eslint-bulk` command is a thin wrapper whose behavior is actually provided by the patch itself.
-In this way, if your monorepo contains projects using different versions of this package, the same globally
-installed `eslint-bulk` command can be used under any project folder, and it will always invoke the correct
-version of the engine compatible with that project.  Because the patch is loaded by ESLint, the `eslint-bulk`
-command must be invoked in a project folder that contains an **.eslintrc.js** configuration with correctly
-installed **package.json** dependencies.
+## Usage
 
-Here's an example of the bulk suppressions file content:
+To use `@sinonjs/fake-timers`, create a new clock, schedule events on it using the timer
+functions and pass time using the `tick` method.
 
-**.eslint-bulk-suppressions.json**
 ```js
-{
-  "suppressions": [
-    {
-      "rule": "no-var",
-      "file": "./src/your-file.ts",
-      "scopeId": ".ExampleClass.exampleMethod"
-    }
-  ]
-}
+// In the browser distribution, a global `FakeTimers` is already available
+var FakeTimers = require("@sinonjs/fake-timers");
+var clock = FakeTimers.createClock();
+
+clock.setTimeout(function () {
+    console.log(
+        "The poblano is a mild chili pepper originating in the state of Puebla, Mexico."
+    );
+}, 15);
+
+// ...
+
+clock.tick(15);
 ```
-The `rule` field is the ESLint rule name.  The `file` field is the source file path, relative to the **eslintrc.js** file.  The `scopeId` is a special string built from the names of containing structures.  (For implementation details, take a look at the [calculateScopeId()](https://github.com/microsoft/rushstack/blob/e95c51088341f01516ee5a7639d57c3f6dce8772/eslint/eslint-patch/src/eslint-bulk-suppressions/bulk-suppressions-patch.ts#L52) function.)  The `scopeId` identifies a region of code where the rule should be suppressed, while being reasonably stable across edits of the source file.
 
-# modern-module-resolution feature
+Upon executing the last line, an interesting fact about the
+[Poblano](https://en.wikipedia.org/wiki/Poblano) will be printed synchronously to
+the screen. If you want to simulate asynchronous behavior, you have to use your
+imagination when calling the various functions.
 
-### What it does
+The `next`, `runAll`, `runToFrame`, and `runToLast` methods are available to advance the clock. See the
+API Reference for more details.
 
-This patch is a workaround for a longstanding [ESLint feature request](https://github.com/eslint/eslint/issues/3458)
-that would allow a shareable ESLint config to bring along its own plugins, rather than imposing peer dependencies
-on every consumer of the config.  In a monorepo scenario, this enables your lint setup to be consolidated in a
-single NPM package.  Doing so greatly reduces the copy+pasting and version management for all the other projects
-that use your standard lint rule set, but don't want to be bothered with the details.
+### Faking the native timers
 
-> **NOTE:** ESLint 8.21.0 has now introduced a new `ESLINT_USE_FLAT_CONFIG` mode that may reduce the need
-> for this patch.
+When using `@sinonjs/fake-timers` to test timers, you will most likely want to replace the native
+timers such that calling `setTimeout` actually schedules a callback with your
+clock instance, not the browser's internals.
 
+Calling `install` with no arguments achieves this. You can call `uninstall`
+later to restore things as they were again.
 
-### Why it's a patch
+```js
+// In the browser distribution, a global `FakeTimers` is already available
+var FakeTimers = require("@sinonjs/fake-timers");
 
-We initially proposed this feature in a pull request for the official ESLint back in 2019, however the
-maintainers preferred to implement a more comprehensive overhaul of the ESLint config engine.  It ultimately
-shipped with the experimental new `ESLINT_USE_FLAT_CONFIG` mode (still opt-in as of ESLint 8).
-While waiting for that, Rush Stack's `modern-module-resolution` patch provided a reliable interim solution.
-We will continue to maintain this patch as long as it is being widely used, but we encourage you to check out
-`ESLINT_USE_FLAT_CONFIG` and see if it meets your needs.
+var clock = FakeTimers.install();
+// Equivalent to
+// var clock = FakeTimers.install(typeof global !== "undefined" ? global : window);
 
+setTimeout(fn, 15); // Schedules with clock.setTimeout
 
-### How to use it
+clock.uninstall();
+// setTimeout is restored to the native implementation
+```
 
-1. Add `@rushstack/eslint-patch` as a dependency of your project:
+To hijack timers in another context pass it to the `install` method.
 
-   ```bash
-   cd your-project
-   npm install --save-dev @rushstack/eslint-patch
-   ```
-
-2. Add a `require()` call to the to top of the **.eslintrc.js** file for each project that depends
-   on your shareable ESLint config, for example:
-
-   **.eslintrc.js**
-   ```ts
-   require("@rushstack/eslint-patch/modern-module-resolution"); // 👈 add this line
-
-   // Add your "extends" boilerplate here, for example:
-   module.exports = {
-     extends: ['@your-company/eslint-config'],
-     parserOptions: { tsconfigRootDir: __dirname }
-   };
-   ```
-
-With this change, the local project no longer needs any ESLint plugins in its **package.json** file.
-Instead, the hypothetical `@your-company/eslint-config` NPM package would declare the plugins as its
-own dependencies.
-
-This patch works by modifying the ESLint engine so that its module resolver will load relative to the folder of
-the referencing config file, rather than the project folder.  The patch is compatible with ESLint 6, 7, and 8.
-It also works with any editor extensions that load ESLint as a library.
-
-For an even leaner setup, `@your-company/eslint-config` can provide the patches as its own dependency.
-See [@rushstack/eslint-config](https://github.com/microsoft/rushstack/blob/main/eslint/eslint-config/patch/modern-module-resolution.js) for a real world example.
-
-
-# custom-config-package-names feature
-
-### What it does
-
-Load the `custom-config-package-names` patch to remove ESLint's
-[naming requirement](https://eslint.org/docs/latest/extend/shareable-configs)
-that `eslint-config` must be part of the NPM package name for shareable configs.
-
-This is useful because Rush Stack's [rig package](https://heft.rushstack.io/pages/intro/rig_packages/)
-specification defines a way for many different tooling configurations and dependencies to be shared
-via a single NPM package, for example
-[`@rushstack/heft-web-rig`](https://www.npmjs.com/package/@rushstack/heft-web-rig).
-Rigs avoid a lot of copy+pasting of dependencies in a large scale monorepo.
-Rig packages always include the `-rig` suffix in their name.  It doesn't make sense to enforce
-that `eslint-config` should also appear in the name of a package that includes shareable configs
-for many other tools besides ESLint.
-
-### How to use it
-
-Continuing the example above, to load this patch you would add a second line to your config file:
-
-**.eslintrc.js**
-```ts
-require("@rushstack/eslint-patch/modern-module-resolution");
-require("@rushstack/eslint-patch/custom-config-package-names"); // 👈 add this line
-
-// Add your "extends" boilerplate here, for example:
-module.exports = {
-  extends: [
-    '@your-company/build-rig/profile/default/includes/eslint/node' // Notice the package name does not start with "eslint-config-"
-  ],
-  parserOptions: { tsconfigRootDir: __dirname }
+```js
+var FakeTimers = require("@sinonjs/fake-timers");
+var context = {
+    setTimeout: setTimeout, // By default context.setTimeout uses the global setTimeout
 };
+var clock = FakeTimers.withGlobal(context).install();
+
+context.setTimeout(fn, 15); // Schedules with clock.setTimeout
+
+clock.uninstall();
+// context.setTimeout is restored to the original implementation
 ```
 
+Usually you want to install the timers onto the global object, so call `install`
+without arguments.
 
-# Links
+#### Automatically incrementing mocked time
 
-- [CHANGELOG.md](https://github.com/microsoft/rushstack/blob/main/eslint/eslint-patch/CHANGELOG.md) - Find
-  out what's new in the latest version
+FakeTimers supports the possibility to attach the faked timers to any change
+in the real system time. This means that there is no need to `tick()` the
+clock in a situation where you won't know **when** to call `tick()`.
 
-- [`@rushstack/eslint-bulk`](https://www.npmjs.com/package/@rushstack/eslint-bulk) CLI package
+Please note that this is achieved using the original setImmediate() API at a certain
+configurable interval `config.advanceTimeDelta` (default: 20ms). Meaning time would
+be incremented every 20ms, not in real time.
 
-`@rushstack/eslint-patch` is part of the [Rush Stack](https://rushstack.io/) family of projects.
+An example would be:
+
+```js
+var FakeTimers = require("@sinonjs/fake-timers");
+var clock = FakeTimers.install({
+    shouldAdvanceTime: true,
+    advanceTimeDelta: 40,
+});
+
+setTimeout(() => {
+    console.log("this just timed out"); //executed after 40ms
+}, 30);
+
+setImmediate(() => {
+    console.log("not so immediate"); //executed after 40ms
+});
+
+setTimeout(() => {
+    console.log("this timed out after"); //executed after 80ms
+    clock.uninstall();
+}, 50);
+```
+
+## API Reference
+
+### `var clock = FakeTimers.createClock([now[, loopLimit]])`
+
+Creates a clock. The default
+[epoch](https://en.wikipedia.org/wiki/Epoch_%28reference_date%29) is `0`.
+
+The `now` argument may be a number (in milliseconds) or a Date object.
+
+The `loopLimit` argument sets the maximum number of timers that will be run when calling `runAll()` before assuming that we have an infinite loop and throwing an error. The default is `1000`.
+
+### `var clock = FakeTimers.install([config])`
+
+Installs FakeTimers using the specified config (otherwise with epoch `0` on the global scope). The following configuration options are available
+
+| Parameter                        | Type        | Default                                                                                                                                                                                                         | Description                                                                                                                                                                                                                                       |
+| -------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `config.now`                     | Number/Date | 0                                                                                                                                                                                                               | installs FakeTimers with the specified unix epoch                                                                                                                                                                                                 |
+| `config.toFake`                  | String[]    | ["setTimeout", "clearTimeout", "setImmediate", "clearImmediate","setInterval", "clearInterval", "Date", "requestAnimationFrame", "cancelAnimationFrame", "requestIdleCallback", "cancelIdleCallback", "hrtime"] | an array with explicit function names to hijack. _When not set, FakeTimers will automatically fake all methods **except** `nextTick`_ e.g., `FakeTimers.install({ toFake: ["setTimeout","nextTick"]})` will fake only `setTimeout` and `nextTick` |
+| `config.loopLimit`               | Number      | 1000                                                                                                                                                                                                            | the maximum number of timers that will be run when calling runAll()                                                                                                                                                                               |
+| `config.shouldAdvanceTime`       | Boolean     | false                                                                                                                                                                                                           | tells FakeTimers to increment mocked time automatically based on the real system time shift (e.g. the mocked time will be incremented by 20ms for every 20ms change in the real system time)                                                      |
+| `config.advanceTimeDelta`        | Number      | 20                                                                                                                                                                                                              | relevant only when using with `shouldAdvanceTime: true`. increment mocked time by `advanceTimeDelta` ms every `advanceTimeDelta` ms change in the real system time.                                                                               |
+| `config.shouldClearNativeTimers` | Boolean     | false                                                                                                                                                                                                           | tells FakeTimers to clear 'native' (i.e. not fake) timers by delegating to their respective handlers. These are not cleared by default, leading to potentially unexpected behavior if timers existed prior to installing FakeTimers.              |
+
+### `var id = clock.setTimeout(callback, timeout)`
+
+Schedules the callback to be fired once `timeout` milliseconds have ticked by.
+
+In Node.js `setTimeout` returns a timer object. FakeTimers will do the same, however
+its `ref()` and `unref()` methods have no effect.
+
+In browsers a timer ID is returned.
+
+### `clock.clearTimeout(id)`
+
+Clears the timer given the ID or timer object, as long as it was created using
+`setTimeout`.
+
+### `var id = clock.setInterval(callback, timeout)`
+
+Schedules the callback to be fired every time `timeout` milliseconds have ticked
+by.
+
+In Node.js `setInterval` returns a timer object. FakeTimers will do the same, however
+its `ref()` and `unref()` methods have no effect.
+
+In browsers a timer ID is returned.
+
+### `clock.clearInterval(id)`
+
+Clears the timer given the ID or timer object, as long as it was created using
+`setInterval`.
+
+### `var id = clock.setImmediate(callback)`
+
+Schedules the callback to be fired once `0` milliseconds have ticked by. Note
+that you'll still have to call `clock.tick()` for the callback to fire. If
+called during a tick the callback won't fire until `1` millisecond has ticked
+by.
+
+In Node.js `setImmediate` returns a timer object. FakeTimers will do the same,
+however its `ref()` and `unref()` methods have no effect.
+
+In browsers a timer ID is returned.
+
+### `clock.clearImmediate(id)`
+
+Clears the timer given the ID or timer object, as long as it was created using
+`setImmediate`.
+
+### `clock.requestAnimationFrame(callback)`
+
+Schedules the callback to be fired on the next animation frame, which runs every
+16 ticks. Returns an `id` which can be used to cancel the callback. This is
+available in both browser & node environments.
+
+### `clock.cancelAnimationFrame(id)`
+
+Cancels the callback scheduled by the provided id.
+
+### `clock.requestIdleCallback(callback[, timeout])`
+
+Queued the callback to be fired during idle periods to perform background and low priority work on the main event loop. Callbacks which have a timeout option will be fired no later than time in milliseconds. Returns an `id` which can be used to cancel the callback.
+
+### `clock.cancelIdleCallback(id)`
+
+Cancels the callback scheduled by the provided id.
+
+### `clock.countTimers()`
+
+Returns the number of waiting timers. This can be used to assert that a test
+finishes without leaking any timers.
+
+### `clock.hrtime(prevTime?)`
+
+Only available in Node.js, mimicks process.hrtime().
+
+### `clock.nextTick(callback)`
+
+Only available in Node.js, mimics `process.nextTick` to enable completely synchronous testing flows.
+
+### `clock.performance.now()`
+
+Only available in browser environments, mimicks performance.now().
+
+### `clock.tick(time)` / `await clock.tickAsync(time)`
+
+Advance the clock, firing callbacks if necessary. `time` may be the number of
+milliseconds to advance the clock by or a human-readable string. Valid string
+formats are `"08"` for eight seconds, `"01:00"` for one minute and `"02:34:10"`
+for two hours, 34 minutes and ten seconds.
+
+The `tickAsync()` will also break the event loop, allowing any scheduled promise
+callbacks to execute _before_ running the timers.
+
+### `clock.next()` / `await clock.nextAsync()`
+
+Advances the clock to the the moment of the first scheduled timer, firing it.
+
+The `nextAsync()` will also break the event loop, allowing any scheduled promise
+callbacks to execute _before_ running the timers.
+
+### `clock.reset()`
+
+Removes all timers and ticks without firing them, and sets `now` to `config.now`
+that was provided to `FakeTimers.install` or to `0` if `config.now` was not provided.
+Useful to reset the state of the clock without having to `uninstall` and `install` it.
+
+### `clock.runAll()` / `await clock.runAllAsync()`
+
+This runs all pending timers until there are none remaining. If new timers are added while it is executing they will be run as well.
+
+This makes it easier to run asynchronous tests to completion without worrying about the number of timers they use, or the delays in those timers.
+
+It runs a maximum of `loopLimit` times after which it assumes there is an infinite loop of timers and throws an error.
+
+The `runAllAsync()` will also break the event loop, allowing any scheduled promise
+callbacks to execute _before_ running the timers.
+
+### `clock.runMicrotasks()`
+
+This runs all pending microtasks scheduled with `nextTick` but none of the timers and is mostly useful for libraries using FakeTimers underneath and for running `nextTick` items without any timers.
+
+### `clock.runToFrame()`
+
+Advances the clock to the next frame, firing all scheduled animation frame callbacks,
+if any, for that frame as well as any other timers scheduled along the way.
+
+### `clock.runToLast()` / `await clock.runToLastAsync()`
+
+This takes note of the last scheduled timer when it is run, and advances the
+clock to that time firing callbacks as necessary.
+
+If new timers are added while it is executing they will be run only if they
+would occur before this time.
+
+This is useful when you want to run a test to completion, but the test recursively
+sets timers that would cause `runAll` to trigger an infinite loop warning.
+
+The `runToLastAsync()` will also break the event loop, allowing any scheduled promise
+callbacks to execute _before_ running the timers.
+
+### `clock.setSystemTime([now])`
+
+This simulates a user changing the system clock while your program is running.
+It affects the current time but it does not in itself cause e.g. timers to fire;
+they will fire exactly as they would have done without the call to
+setSystemTime().
+
+### `clock.uninstall()`
+
+Restores the original methods of the native timers or the methods on the object
+that was passed to `FakeTimers.withGlobal`
+
+### `Date`
+
+Implements the `Date` object but using the clock to provide the correct time.
+
+### `Performance`
+
+Implements the `now` method of the [`Performance`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now) object but using the clock to provide the correct time. Only available in environments that support the Performance object (browsers mostly).
+
+### `FakeTimers.withGlobal`
+
+In order to support creating clocks based on separate or sandboxed environments (such as JSDOM), FakeTimers exports a factory method which takes single argument `global`, which it inspects to figure out what to mock and what features to support. When invoking this function with a global, you will get back an object with `timers`, `createClock` and `install` - same as the regular FakeTimers exports only based on the passed in global instead of the global environment.
+
+## Running tests
+
+FakeTimers has a comprehensive test suite. If you're thinking of contributing bug
+fixes or suggesting new features, you need to make sure you have not broken any
+tests. You are also expected to add tests for any new behavior.
+
+### On node:
+
+```sh
+npm test
+```
+
+Or, if you prefer more verbose output:
+
+```
+$(npm bin)/mocha ./test/fake-timers-test.js
+```
+
+### In the browser
+
+[Mochify](https://github.com/mantoni/mochify.js) is used to run the tests in
+PhantomJS. Make sure you have `phantomjs` installed. Then:
+
+```sh
+npm test-headless
+```
+
+## License
+
+BSD 3-clause "New" or "Revised" License (see LICENSE file)

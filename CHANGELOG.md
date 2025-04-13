@@ -1,265 +1,441 @@
-# Change Log - @rushstack/eslint-patch
 
-This log was last generated on Tue, 11 Mar 2025 02:12:33 GMT and should not be manually modified.
+8.1.0 / 2021-11-03
+==================
 
-## 1.11.0
-Tue, 11 Mar 2025 02:12:33 GMT
+  * Add native timer clean-up behavior (#407)
+  * give a hint about how to get type defs (#405)
 
-### Minor changes
+8.0.1 / 2021-09-25
+==================
 
-- Bump the `@typescript-eslint/*` packages to add support for TypeScript 5.8.
+  * fix: handle missing stack when throwing recursion errors (#401)
 
-## 1.10.5
-Tue, 07 Jan 2025 16:11:06 GMT
+8.0.0 / 2021-09-15
+==================
 
-### Patches
+  * Remove generated typescript definitions. If you use this package with TypeScript, install `@types/sinonjs__fake-timers` after upgrading (#386)
+  * Issue 390 implicit dependencies on faking interval (#391)
+  * replace var with const/let (#392)
+  * Retry - Add stack trace to code recursively scheduling timers #325  (#375)
 
-- Fix a performance issue when locating ".eslint-bulk-suppressions.json".
+7.1.2 / 2021-05-28
+==================
 
-## 1.10.4
-Sat, 27 Jul 2024 00:10:27 GMT
+  * Fix #382 by making config fields optional (#383)
+  * Fix #347 : Support util.promisify
 
-### Patches
+7.1.1 / 2021-05-27
+==================
 
-- Include CHANGELOG.md in published releases again
+  * Fix JSDoc for createClock
 
-## 1.10.3
-Fri, 17 May 2024 00:10:40 GMT
+7.1.0 / 2021-05-20
+==================
 
-### Patches
+  * Remove Safari from Sauce Lab (ref #380)
+  * Bump hosted-git-info from 2.6.0 to 2.8.9
+  * Bump handlebars from 4.7.6 to 4.7.7
+  * Bump lodash from 4.17.19 to 4.17.21
+  * Add in latest Safari and evergreen Edge
+  * Drop IE11 and Safari 9
+  * chore: add type tests (#373)
+  * remove constructor types
+  * use globalThis to avoid conflicts
+  * Update yargs-parser
+  * Update mkdirp
+  * Upgrade jsdom
+  * Upgrade mochify to latest
+  * Upgrade Mocha to latest
+  * Bump y18n from 4.0.0 to 4.0.1
+  * make config optional
+  * add a bunch more types
 
-- [eslint-patch] Allow use of ESLint v9
+7.0.5 / 2021-04-11
+==================
 
-## 1.10.2
-Wed, 10 Apr 2024 21:59:39 GMT
+  * Fix up some clock types in JSDoc (becomes `.d.ts`) (#370)
+  * Fix refresh arguments forwarding (#369)
 
-### Patches
+7.0.4 / 2021-04-08
+==================
 
-- Bump maximum supported ESLint version for the bulk-suppressions tool to `8.57.0`.
+  * Fix usage with TypeScript
 
-## 1.10.1
-Fri, 29 Mar 2024 05:46:41 GMT
+7.0.3 / 2021-03-02
+==================
 
-### Patches
+  * Removing the use of eval in Node.js (#331)
+  * Drop Node 8
+  * Add docs about typings (#357)
 
-- Fix an issue where the `eslint-bulk prune` command would crash if a bulk suppressions file exists that speicifies no suppressions.
-- Exit with success under normal conditions.
+7.0.2 / 2021-01-18
+==================
 
-## 1.10.0
-Thu, 28 Mar 2024 18:11:12 GMT
+  * Make config options optional in TypeScript defs (#354)
 
-### Minor changes
+7.0.1 / 2021-01-14
+==================
 
-- Delete the `.eslint-bulk-suppressions.json` file during pruning if all suppressions have been eliminated.
+  * Update README section about browser use
 
-### Patches
+7.0.0 / 2021-01-12
+==================
 
-- Fix an issue with running `eslint-bulk prune` in a project with suppressions that refer to deleted files.
+  * Remove bundle from package. If you're loading `fake-timers` via
+    script tag, you'll now have to provide your own bundled version
+  * Add .d.ts files to package
+  * Revert "Add stack trace to code recursively scheduling timers" (#338)
+  * Remove unnecessary durations and use globals
+  * Support timeout.refresh in node environments
+  * Fix #319: Error message changed to TypeError
+  * Fix #319: The use of 'eval' has been removed
+  * Fix #304: clearTimeout clears setInterval and clearInterval clears setTimeout
+  * Remove config.target (#318)
 
-## 1.9.0
-Wed, 27 Mar 2024 19:47:21 GMT
 
-### Minor changes
+6.0.1 / 2020-03-24
+==================
 
-- Fix an issue where `eslint-bulk prune` does not work if there are no files to lint in the project root.
+  * Support util.promisify in Node (#223)
 
-## 1.8.0
-Wed, 20 Mar 2024 02:09:14 GMT
+6.0.0 / 2020-02-04
+==================
 
-### Minor changes
+  * Rename project to `@sinonjs/fake-timers`
 
-- Refactor the bulk-suppressions feature to fix some performance issues.
+5.1.2 / 2019-12-19
+==================
 
-### Patches
+  * Use global from `@sinonjs/commons`
+  * Fix setSystemTime affects hrtime if its called multiple times.
+  * Test coverage: use nyc
 
-- Fix an issue where linting issues that were already suppressed via suppression comments were recorded in the bulk suppressions list.
+5.1.1 / 2019-10-21
+==================
 
-## 1.7.2
-Thu, 25 Jan 2024 23:03:57 GMT
+  * Fix global ReferenceError (#273)
 
-### Patches
+5.1.0 / 2019-10-14
+==================
 
-- Some minor documentation updates
+  * Upgrade lolex with async versions of most calls
 
-## 1.7.1
-Wed, 24 Jan 2024 07:38:34 GMT
+5.0.1 / 2019-10-10
+==================
 
-### Patches
+  * Upgrade eslint, add prettier
+  * Use `--no-detect-globals` to bundle and test lolex (#270)
 
-- Update documentation
+5.0.0 / 2019-10-07
+==================
 
-## 1.7.0
-Tue, 16 Jan 2024 18:30:10 GMT
+  * Avoid installing setImmediate in unsupported environments
+  * fix #246: non-constructor Date() should return a string
 
-### Minor changes
+4.2.0 / 2019-08-04
+==================
 
-- Add support for TypeScript 5.3 with @typescript-eslint 6.19.x
+  * Fix support for replacing the JSDOM performance field
 
-## 1.6.1
-Fri, 15 Dec 2023 01:10:06 GMT
+4.1.0 / 2019-06-04
+==================
 
-### Patches
+  * Fix crash on Bash version 3 (macOS)
+  * Support hrtime.bigint()
+  * fix: count microtasks in countTimers
+  * Return empty arrays for performance.getEntries, other relevant methods
 
-- Fix bulk suppression patch's eslintrc detection in polyrepos
+4.0.1 / 2019-04-17
+==================
 
-## 1.6.0
-Wed, 22 Nov 2023 01:45:18 GMT
+  * Remove sinon: added by mistake
 
-### Minor changes
+4.0.0 / 2019-04-17
+==================
 
-- Add an experimental new feature for ESLint bulk suppressions; for details see GitHub #4303
+  * Drop support for IE9 and IE10: link to supported browsers in README
+  * No more ExperimentalWarnings in Node environment for queueMicrotask() if it's not used in user's code
 
-## 1.5.1
-Sun, 01 Oct 2023 02:56:29 GMT
+3.1.0 / 2019-02-11
+==================
 
-### Patches
+  * default timeout set to 50ms
+  * first implementation of requestIdleCallback and cancelIdleCallback
+  * fixed accidentally performance.now() -> x.now() replacement
+  * added queueMicrotask
 
-- Fix patch compatibility with ESLint 7 for versions matching <7.12.0
+3.0.0 / 2018-10-08
+==================
 
-## 1.5.0
-Tue, 26 Sep 2023 09:30:33 GMT
+  * Add countTimers method
+  * Disallow negative ticks (breaking API change!)
+  * Avoid exposing hrNow
+  * Fix #207 - round-off errors in `hrtime`
+  * Truncate sub-nanosecond values for `hrtime`
+  * Truncate sub-millisceond values for `Date.now()`
 
-### Minor changes
+v2.7.5 / 2018-09-19
+==================
 
-- Add an optional patch which can be used to allow ESLint to extend configurations from packages that do not have the "eslint-config-" prefix
+  * fix: handle floating point in hrtime (#210)
+  * fix: reset high resolution timer on clock.reset (#209)
+  * Add an error when creating a clock with no Date object (#205)
 
-## 1.4.0
-Fri, 15 Sep 2023 00:36:58 GMT
+v2.7.4 / 2018-09-05
+==================
 
-### Minor changes
+  * performance.mark related fixes for failing Safari, IE 10 and IE 11 tests
 
-- Update @types/node from 14 to 18
+v2.7.3 / 2018-09-05
+==================
 
-## 1.3.3
-Tue, 08 Aug 2023 07:10:39 GMT
+  * Fix for #200: TypeError on performance.mark
 
-### Patches
+v2.7.2 / 2018-09-04
+==================
 
-- Fix patching for running eslint via eslint/use-at-your-own-risk, which VS Code's eslint extension does when enabling flat config support
+  * fix(setInterval): parse `timeout` arg to integer (#202)
+  * Upgrade insecure dependencies with npm audit fix
 
-## 1.3.2
-Thu, 15 Jun 2023 00:21:01 GMT
+v2.7.1 / 2018-07-06
+==================
+  * Fix performance replacement on iOS 9.3
 
-### Patches
+v2.7.0 / 2018-05-25
+==================
 
-- [eslint-patch] add invalid importer path test to ESLint 7.x || 8.x block
+  * reset clock to start
+  * check Performance exists before touching it
 
-## 1.3.1
-Wed, 07 Jun 2023 22:45:16 GMT
+v2.6.0 / 2018-05-16
+==================
 
-### Patches
+  * Fix `reset` and document it publicly Clear microtick jobs and set now to 0 in reset (#179)
+  * Access Date on `_global` (#178)
 
-- Add test for invalid importer path to fallback to relative path when loading eslint 6 plugins
+v2.5.0 / 2018-05-13
+==================
 
-## 1.3.0
-Mon, 22 May 2023 06:34:32 GMT
+  * feat: respect loopLimit in runMicrotasks (#172)
+  * assign performance as a property, not as a function
 
-### Minor changes
+v2.4.2 / 2018-05-11
+===================
+  * Upgrade Mochify to v5.6 (#162) fixed #170
+  * Access `Performance` via `_global` (#168)
 
-- Upgrade the @typescript-eslint/* dependencies to ~5.59.2
+v2.4.1 / 2018-05-08
+==================
 
-## 1.2.0
-Thu, 15 Sep 2022 00:18:51 GMT
+  * fix: handle negative infinity timeout (#165)
 
-### Minor changes
+v2.4.0 / 2018-05-08
+==================
 
-- Use original resolver if patched resolver fails.
+  * Add `withGlobal` export
+  * expose runMicrotasks
+  * Fix that performance.mark is undefined after timer install
 
-## 1.1.4
-Tue, 28 Jun 2022 00:23:32 GMT
+v2.3.2 / 2018-01-29
+==================
 
-### Patches
+* Add files section to package.json to avoid unnecessary package bloat #154
+* Add missing functions in default `toFake` #150
 
-- Update the README to mention support for ESLint 8.
+v2.3.1 / 2017-11-22
+==================
 
-## 1.1.3
-Fri, 15 Apr 2022 00:12:36 GMT
+  * bugfix for a setTimeout() or setSystemTime() within a nextTick() call. (#145)
 
-### Patches
+v2.3.0 / 2017-11-08
+==================
 
-- Fix an issue where tools could not determine the module type as CommonJS
+  * Stops leak of (request|cancel)AnimationFrame into global scope. (#143)
+  * return timers on uninstall
 
-## 1.1.2
-Sat, 09 Apr 2022 02:24:26 GMT
+v2.2.0 / 2017-11-07
+==================
 
-### Patches
+  * Add support for requestAnimationFrame
+  * fix negative timeout bug
 
-- Rename the "master" branch to "main".
+v2.1.3 / 2017-10-03
+==================
 
-## 1.1.1
-Tue, 15 Mar 2022 19:15:53 GMT
+  * add module entry point (#133)
 
-### Patches
+v2.1.2 / 2017-07-25
+==================
 
-- Fix the path in the package.json "directory" field.
+  * - does not fake process.nextTick by default - added .idea folder to .gitignore - fixed documentation - added clock teardowns in tests
+  * overflowing the timer correctly (issue #67)
 
-## 1.1.0
-Fri, 05 Nov 2021 15:09:18 GMT
+v2.1.1 / 2017-07-19
+==================
 
-### Minor changes
+  * support passing parameters in nextTick (fixes #122)
 
-- feat(eslint-patch): Find patch targets independently of disk layout
+v2.1.0 / 2017-07-18
+==================
 
-## 1.0.9
-Wed, 27 Oct 2021 00:08:15 GMT
+  * Throw error on incorrect install use (#112)
+  * Add support for process.nextTick
+  * lolex can now attach itself to the system timers and automatically ad… (#102)
+  * update hrtime when an interval ticks
 
-### Patches
+v2.0.0 / 2017-07-13
+==================
 
-- Update the package.json repository field to include the directory property.
+  * New install() signature
+  * Add support for performance.now (#106)
+  * Fix issue with tick(): setSystemClock then throw
+  * Update old dependencies
+  * Added support to automatically increment time (#85)
+  * Changed internal uninstall method signature
 
-## 1.0.8
-Wed, 13 Oct 2021 15:09:54 GMT
+v1.6.0 / 2017-02-25
+===================
 
-### Patches
+  * Use common Sinon.JS eslint config
+  * Allow install to be called with date object
+  * Remove wrapper function
+  * Fixed typo in clock.runAll error
 
-- Add support for ESLint 8.0.0
+v1.5.2 / 2016-11-10
+===================
 
-## 1.0.7
-Thu, 23 Sep 2021 00:10:40 GMT
+  * Upgrade mocha to latest
+  * Only overwrite globals when running in IE
 
-### Patches
+1.5.1 / 2016-07-26
+==================
 
-- Upgrade the `@types/node` dependency to version to version 12.
+  * Fix setInterval() behavior with string times
+  * Incorporate test from PR #65
+  * Fix issue #59: context object required 'process'
+  * fixed a case where runAll was called and there are no timers (#70)
+  * Correct the clear{Interval|Timeout|Immediate} error message when calling `set*` for a different type of timer.
+  * Lots of minor changes to tooling and the build process
 
-## 1.0.6
-Fri, 30 Oct 2020 00:10:14 GMT
+v1.5.0 / 2016-05-18
+===================
 
-### Patches
+  * 1.5.0
+  * Check for existence of `process` before using it
+  * Run to last existing timer
+  * Add runAll method to run timers until empty
+  * Turn off Sauce Labs tests for pull requests
+  * Add tests demonstrating that a fake Date could be created with one argument as a String since this string is in a format recognized by the Date.parse() method.
+  * Run test-cloud on Travis
+  * Add process.hrtime()
+  * Add bithound badge to Readme.md
+  * Make Travis also run tests in node 4.2
+  * Update jslint, referee, sinon, browserify, mocha, mochify
+  * Rename src/lolex.js to src/lolex-src.js to avoid bithound ignoring it
+  * Add .bithoundrc
 
-- Update the "modern-module-resolution" patch to support ESLint 7.8.0 and newer
+v1.4.0 / 2015-12-11
+===================
 
-## 1.0.5
-Wed, 30 Sep 2020 18:39:17 GMT
+  * 1.4.0
+  * Remove BASH syntax in lint script
+  * correct test descriptions to match the tests
+  * correct parseTime() error message so it matches behavior
+  * don't run test-cloud as part of npm test
+  * doc: full API reference
+  * doc: update 'Running tests' section
+  * doc: update 'Faking the native timers' section
+  * doc: remove requestAnimationFrame
+  * Implement clock.next()
+  * Run lint in CI
+  * Fix jslint errors
 
-### Patches
+v1.3.2 / 2015-09-22
+===================
 
-- Update to build with @rushstack/heft-node-rig
+  * 1.3.2
+  * Fix for breaking shimmed setImmediate
 
-## 1.0.4
-Wed, 30 Sep 2020 06:53:53 GMT
+v1.3.1 / 2015-08-20
+===================
 
-### Patches
+  * Remove error whos reason is no longer accurate
 
-- Update README.md
+v1.3.0 / 2015-08-19
+===================
 
-## 1.0.3
-Wed, 12 Aug 2020 00:10:05 GMT
+  * 1.3.0
+  * Throw exception on wrong use of clearXYZ()
+  * Fix for Sinon.JS issue #808  :add setSystemTime() function
+  * Fix for Sinon.JS issue #766: clearTimeout() no longer clears Immediate/Interval and vice versa
+  * Update Readme.md to point to LICENSE file
+  * Fix error in readme about running tests
+  * Fix for warning about SPDX license format on npm install
 
-### Patches
+v1.2.2 / 2015-07-22
+===================
 
-- Updated project to build with Heft
+  * 1.2.2
+  * Fixing lint mistake
+  * Update travis to use node@0.12
+  * Fix complaint about missing fake setImmediate
+  * Use license in package.json
 
-## 1.0.2
-Wed, 24 Jun 2020 09:50:48 GMT
+v1.2.1 / 2015-01-06
+===================
 
-### Patches
+  * New build
+  * Dodge JSLint...
+  * Up version
+  * Proper fix for writable globals in IE
+  * Make timers writable in old IEs
 
-- Fix an issue with the published file set
+v1.2.0 / 2014-12-12
+===================
 
-## 1.0.1
-Wed, 24 Jun 2020 09:04:28 GMT
+  * 1.2.0
+  * Fix Sinon.JS issue 624
+  * Lint the test files also
+  * Add .jslintrc
+  * Delay setImmediate if it is during tick call
+  * Add test case
+  * Test behaviour of hasOwnProperty beforehand
+  * Compare now() with delta
+  * Use undefined for defined predicate
+  * Put setImmediate in toFake list
+  * Capture clock instance for uninstall
+  * Restore commented out tests
+  * Add JSLint verification to test
+  * Configure Travis to run tests in node 0.10.x
+  * Add .editorconfig
+  * Fail when faking Date but not setTimeout/setInterval
 
-### Patches
+v1.1.10 / 2014-11-14
+====================
 
-- Initial release
+  * 1.1.0 Fixes setImmediate problems
+  * Rely on `timer` initialization to null
+  * Timer assembly occurs at addTimer callsites
+  * Sort immediate timers before non-immediate
+  * Add createdAt to timers
+  * Sort timers by multiple criteria, not just callAt
+  * Refactor firstTimerInRange
+  * Rename `timeouts` property to `timers`
+  * addTimer is options-driven
 
+v1.0.0 / 2014-11-12
+===================
+
+  * Add built file for browsers
+  * Fix URL
+  * Don't run tests that require global.__proto__ on IE 9 and IE 10
+  * Add "bundle" script to create standalone UMD bundle with browserify
+  * Float with new test framework versions
+  * Remove redundant module prefix
+  * Let Browserify set "global" for us
+  * Change test framework from Buster to Mocha and Mochify
+  * Make timer functions independent on `this`
+  * Change APIs according to Readme
+  * Change clock-creating interface
+  * Change Github paths
+  * Basically working extraction from Sinon.JS
