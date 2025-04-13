@@ -1,315 +1,265 @@
-# @rollup/pluginutils ChangeLog
+# Change Log - @rushstack/eslint-patch
 
-## v3.1.0
+This log was last generated on Tue, 11 Mar 2025 02:12:33 GMT and should not be manually modified.
 
-_2020-06-05_
+## 1.11.0
+Tue, 11 Mar 2025 02:12:33 GMT
 
-### Bugfixes
+### Minor changes
 
-- fix: resolve relative paths starting with "./" (#180)
+- Bump the `@typescript-eslint/*` packages to add support for TypeScript 5.8.
 
-### Features
+## 1.10.5
+Tue, 07 Jan 2025 16:11:06 GMT
 
-- feat: add native node es modules support (#419)
+### Patches
 
-### Updates
+- Fix a performance issue when locating ".eslint-bulk-suppressions.json".
 
-- refactor: replace micromatch with picomatch. (#306)
-- chore: Don't bundle micromatch (#220)
-- chore: add missing typescript devDep (238b140)
-- chore: Use readonly arrays, add TSDoc (#187)
-- chore: Use typechecking (2ae08eb)
+## 1.10.4
+Sat, 27 Jul 2024 00:10:27 GMT
 
-## v3.0.10
+### Patches
 
-_2020-05-02_
+- Include CHANGELOG.md in published releases again
 
-### Bugfixes
+## 1.10.3
+Fri, 17 May 2024 00:10:40 GMT
 
-- fix: resolve relative paths starting with "./" (#180)
+### Patches
 
-### Updates
+- [eslint-patch] Allow use of ESLint v9
 
-- refactor: replace micromatch with picomatch. (#306)
-- chore: Don't bundle micromatch (#220)
-- chore: add missing typescript devDep (238b140)
-- chore: Use readonly arrays, add TSDoc (#187)
-- chore: Use typechecking (2ae08eb)
+## 1.10.2
+Wed, 10 Apr 2024 21:59:39 GMT
 
-## v3.0.9
+### Patches
 
-_2020-04-12_
+- Bump maximum supported ESLint version for the bulk-suppressions tool to `8.57.0`.
 
-### Updates
+## 1.10.1
+Fri, 29 Mar 2024 05:46:41 GMT
 
-- chore: support Rollup v2
+### Patches
 
-## v3.0.8
+- Fix an issue where the `eslint-bulk prune` command would crash if a bulk suppressions file exists that speicifies no suppressions.
+- Exit with success under normal conditions.
 
-_2020-02-01_
+## 1.10.0
+Thu, 28 Mar 2024 18:11:12 GMT
 
-### Bugfixes
+### Minor changes
 
-- fix: resolve relative paths starting with "./" (#180)
+- Delete the `.eslint-bulk-suppressions.json` file during pruning if all suppressions have been eliminated.
 
-### Updates
+### Patches
 
-- chore: add missing typescript devDep (238b140)
-- chore: Use readonly arrays, add TSDoc (#187)
-- chore: Use typechecking (2ae08eb)
+- Fix an issue with running `eslint-bulk prune` in a project with suppressions that refer to deleted files.
 
-## v3.0.7
+## 1.9.0
+Wed, 27 Mar 2024 19:47:21 GMT
 
-_2020-02-01_
+### Minor changes
 
-### Bugfixes
+- Fix an issue where `eslint-bulk prune` does not work if there are no files to lint in the project root.
 
-- fix: resolve relative paths starting with "./" (#180)
+## 1.8.0
+Wed, 20 Mar 2024 02:09:14 GMT
 
-### Updates
+### Minor changes
 
-- chore: Use readonly arrays, add TSDoc (#187)
-- chore: Use typechecking (2ae08eb)
+- Refactor the bulk-suppressions feature to fix some performance issues.
 
-## v3.0.6
+### Patches
 
-_2020-01-27_
+- Fix an issue where linting issues that were already suppressed via suppression comments were recorded in the bulk suppressions list.
 
-### Bugfixes
+## 1.7.2
+Thu, 25 Jan 2024 23:03:57 GMT
 
-- fix: resolve relative paths starting with "./" (#180)
+### Patches
 
-## v3.0.5
+- Some minor documentation updates
 
-_2020-01-25_
+## 1.7.1
+Wed, 24 Jan 2024 07:38:34 GMT
 
-### Bugfixes
+### Patches
 
-- fix: bring back named exports (#176)
+- Update documentation
 
-## v3.0.4
+## 1.7.0
+Tue, 16 Jan 2024 18:30:10 GMT
 
-_2020-01-10_
+### Minor changes
 
-### Bugfixes
+- Add support for TypeScript 5.3 with @typescript-eslint 6.19.x
 
-- fix: keep for(const..) out of scope (#151)
+## 1.6.1
+Fri, 15 Dec 2023 01:10:06 GMT
 
-## v3.0.3
+### Patches
 
-_2020-01-07_
+- Fix bulk suppression patch's eslintrc detection in polyrepos
 
-### Bugfixes
+## 1.6.0
+Wed, 22 Nov 2023 01:45:18 GMT
 
-- fix: createFilter Windows regression (#141)
+### Minor changes
 
-### Updates
-
-- test: fix windows path failure (0a0de65)
-- chore: fix test script (5eae320)
-
-## v3.0.2
-
-_2020-01-04_
-
-### Bugfixes
-
-- fix: makeLegalIdentifier - potentially unsafe input for blacklisted identifier (#116)
-
-### Updates
-
-- docs: Fix documented type of createFilter's include/exclude (#123)
-- chore: update minor linting correction (bcbf9d2)
-
-## 3.0.1
-
-- fix: Escape glob characters in folder (#84)
-
-## 3.0.0
-
-_2019-11-25_
-
-- **Breaking:** Minimum compatible Rollup version is 1.20.0
-- **Breaking:** Minimum supported Node version is 8.0.0
-- Published as @rollup/plugins-image
-
-## 2.8.2
-
-_2019-09-13_
-
-- Handle optional catch parameter in attachScopes ([#70](https://github.com/rollup/rollup-pluginutils/pulls/70))
-
-## 2.8.1
-
-_2019-06-04_
-
-- Support serialization of many edge cases ([#64](https://github.com/rollup/rollup-pluginutils/issues/64))
-
-## 2.8.0
-
-_2019-05-30_
-
-- Bundle updated micromatch dependency ([#60](https://github.com/rollup/rollup-pluginutils/issues/60))
-
-## 2.7.1
-
-_2019-05-17_
-
-- Do not ignore files with a leading "." in createFilter ([#62](https://github.com/rollup/rollup-pluginutils/issues/62))
-
-## 2.7.0
-
-_2019-05-15_
-
-- Add `resolve` option to createFilter ([#59](https://github.com/rollup/rollup-pluginutils/issues/59))
-
-## 2.6.0
-
-_2019-04-04_
-
-- Add `extractAssignedNames` ([#59](https://github.com/rollup/rollup-pluginutils/issues/59))
-- Provide dedicated TypeScript typings file ([#58](https://github.com/rollup/rollup-pluginutils/issues/58))
-
-## 2.5.0
-
-_2019-03-18_
-
-- Generalize dataToEsm type ([#55](https://github.com/rollup/rollup-pluginutils/issues/55))
-- Handle empty keys in dataToEsm ([#56](https://github.com/rollup/rollup-pluginutils/issues/56))
-
-## 2.4.1
-
-_2019-02-16_
-
-- Remove unnecessary dependency
-
-## 2.4.0
-
-_2019-02-16_
-Update dependencies to solve micromatch vulnerability ([#53](https://github.com/rollup/rollup-pluginutils/issues/53))
-
-## 2.3.3
-
-_2018-09-19_
-
-- Revert micromatch update ([#43](https://github.com/rollup/rollup-pluginutils/issues/43))
-
-## 2.3.2
-
-_2018-09-18_
-
-- Bumb micromatch dependency ([#36](https://github.com/rollup/rollup-pluginutils/issues/36))
-- Bumb dependencies ([#41](https://github.com/rollup/rollup-pluginutils/issues/41))
-- Split up tests ([#40](https://github.com/rollup/rollup-pluginutils/issues/40))
-
-## 2.3.1
-
-_2018-08-06_
-
-- Fixed ObjectPattern scope in attachScopes to recognise { ...rest } syntax ([#37](https://github.com/rollup/rollup-pluginutils/issues/37))
-
-## 2.3.0
-
-_2018-05-21_
-
-- Add option to not generate named exports ([#32](https://github.com/rollup/rollup-pluginutils/issues/32))
-
-## 2.2.1
-
-_2018-05-21_
-
-- Support `null` serialization ([#34](https://github.com/rollup/rollup-pluginutils/issues/34))
-
-## 2.2.0
-
-_2018-05-11_
-
-- Improve white-space handling in `dataToEsm` and add `prepare` script ([#31](https://github.com/rollup/rollup-pluginutils/issues/31))
-
-## 2.1.1
-
-_2018-05-09_
-
-- Update dependencies
-
-## 2.1.0
-
-_2018-05-08_
-
-- Add `dataToEsm` helper to create named exports from objects ([#29](https://github.com/rollup/rollup-pluginutils/issues/29))
-- Support literal keys in object patterns ([#27](https://github.com/rollup/rollup-pluginutils/issues/27))
-- Support function declarations without id in `attachScopes` ([#28](https://github.com/rollup/rollup-pluginutils/issues/28))
-
-## 2.0.1
-
-_2017-01-03_
-
-- Don't add extension to file with trailing dot ([#14](https://github.com/rollup/rollup-pluginutils/issues/14))
-
-## 2.0.0
-
-_2017-01-03_
-
-- Use `micromatch` instead of `minimatch` ([#19](https://github.com/rollup/rollup-pluginutils/issues/19))
-- Allow `createFilter` to take regexes ([#5](https://github.com/rollup/rollup-pluginutils/issues/5))
-
-## 1.5.2
-
-_2016-08-29_
-
-- Treat `arguments` as a reserved word ([#10](https://github.com/rollup/rollup-pluginutils/issues/10))
+- Add an experimental new feature for ESLint bulk suppressions; for details see GitHub #4303
 
 ## 1.5.1
+Sun, 01 Oct 2023 02:56:29 GMT
 
-_2016-06-24_
+### Patches
 
-- Add all declarators in a var declaration to scope, not just the first
+- Fix patch compatibility with ESLint 7 for versions matching <7.12.0
 
 ## 1.5.0
+Tue, 26 Sep 2023 09:30:33 GMT
 
-_2016-06-07_
+### Minor changes
 
-- Exclude IDs with null character (`\0`)
+- Add an optional patch which can be used to allow ESLint to extend configurations from packages that do not have the "eslint-config-" prefix
 
 ## 1.4.0
+Fri, 15 Sep 2023 00:36:58 GMT
 
-_2016-06-07_
+### Minor changes
 
-- Workaround minimatch issue ([#6](https://github.com/rollup/rollup-pluginutils/pull/6))
-- Exclude non-string IDs in `createFilter`
+- Update @types/node from 14 to 18
+
+## 1.3.3
+Tue, 08 Aug 2023 07:10:39 GMT
+
+### Patches
+
+- Fix patching for running eslint via eslint/use-at-your-own-risk, which VS Code's eslint extension does when enabling flat config support
+
+## 1.3.2
+Thu, 15 Jun 2023 00:21:01 GMT
+
+### Patches
+
+- [eslint-patch] add invalid importer path test to ESLint 7.x || 8.x block
 
 ## 1.3.1
+Wed, 07 Jun 2023 22:45:16 GMT
 
-_2015-12-16_
+### Patches
 
-- Build with Rollup directly, rather than via Gobble
+- Add test for invalid importer path to fallback to relative path when loading eslint 6 plugins
 
 ## 1.3.0
+Mon, 22 May 2023 06:34:32 GMT
 
-_2015-12-16_
+### Minor changes
 
-- Use correct path separator on Windows
+- Upgrade the @typescript-eslint/* dependencies to ~5.59.2
 
 ## 1.2.0
+Thu, 15 Sep 2022 00:18:51 GMT
 
-_2015-11-02_
+### Minor changes
 
-- Add `attachScopes` and `makeLegalIdentifier`
+- Use original resolver if patched resolver fails.
+
+## 1.1.4
+Tue, 28 Jun 2022 00:23:32 GMT
+
+### Patches
+
+- Update the README to mention support for ESLint 8.
+
+## 1.1.3
+Fri, 15 Apr 2022 00:12:36 GMT
+
+### Patches
+
+- Fix an issue where tools could not determine the module type as CommonJS
+
+## 1.1.2
+Sat, 09 Apr 2022 02:24:26 GMT
+
+### Patches
+
+- Rename the "master" branch to "main".
+
+## 1.1.1
+Tue, 15 Mar 2022 19:15:53 GMT
+
+### Patches
+
+- Fix the path in the package.json "directory" field.
 
 ## 1.1.0
+Fri, 05 Nov 2021 15:09:18 GMT
 
-2015-10-24\*
+### Minor changes
 
-- Add `addExtension` function
+- feat(eslint-patch): Find patch targets independently of disk layout
+
+## 1.0.9
+Wed, 27 Oct 2021 00:08:15 GMT
+
+### Patches
+
+- Update the package.json repository field to include the directory property.
+
+## 1.0.8
+Wed, 13 Oct 2021 15:09:54 GMT
+
+### Patches
+
+- Add support for ESLint 8.0.0
+
+## 1.0.7
+Thu, 23 Sep 2021 00:10:40 GMT
+
+### Patches
+
+- Upgrade the `@types/node` dependency to version to version 12.
+
+## 1.0.6
+Fri, 30 Oct 2020 00:10:14 GMT
+
+### Patches
+
+- Update the "modern-module-resolution" patch to support ESLint 7.8.0 and newer
+
+## 1.0.5
+Wed, 30 Sep 2020 18:39:17 GMT
+
+### Patches
+
+- Update to build with @rushstack/heft-node-rig
+
+## 1.0.4
+Wed, 30 Sep 2020 06:53:53 GMT
+
+### Patches
+
+- Update README.md
+
+## 1.0.3
+Wed, 12 Aug 2020 00:10:05 GMT
+
+### Patches
+
+- Updated project to build with Heft
+
+## 1.0.2
+Wed, 24 Jun 2020 09:50:48 GMT
+
+### Patches
+
+- Fix an issue with the published file set
 
 ## 1.0.1
+Wed, 24 Jun 2020 09:04:28 GMT
 
-_2015-10-24_
+### Patches
 
-- Include dist files in package
+- Initial release
 
-## 1.0.0
-
-_2015-10-24_
-
-- First release

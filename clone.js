@@ -26,23 +26,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValueErrorType = void 0;
-var index_1 = require("../errors/index");
-Object.defineProperty(exports, "ValueErrorType", { enumerable: true, get: function () { return index_1.ValueErrorType; } });
-__exportStar(require("./pointer"), exports);
-__exportStar(require("./value"), exports);
+exports.ValueClone = void 0;
+const is_1 = require("./is");
+var ValueClone;
+(function (ValueClone) {
+    function Object(value) {
+        const keys = [...globalThis.Object.keys(value), ...globalThis.Object.getOwnPropertySymbols(value)];
+        return keys.reduce((acc, key) => ({ ...acc, [key]: Clone(value[key]) }), {});
+    }
+    function Array(value) {
+        return value.map((element) => Clone(element));
+    }
+    function TypedArray(value) {
+        return value.slice();
+    }
+    function Value(value) {
+        return value;
+    }
+    function Clone(value) {
+        if (is_1.Is.Object(value)) {
+            return Object(value);
+        }
+        else if (is_1.Is.Array(value)) {
+            return Array(value);
+        }
+        else if (is_1.Is.TypedArray(value)) {
+            return TypedArray(value);
+        }
+        else if (is_1.Is.Value(value)) {
+            return Value(value);
+        }
+        else {
+            throw new Error('ValueClone: Unable to clone value');
+        }
+    }
+    ValueClone.Clone = Clone;
+})(ValueClone = exports.ValueClone || (exports.ValueClone = {}));

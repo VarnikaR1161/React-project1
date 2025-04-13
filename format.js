@@ -1,7 +1,7 @@
 "use strict";
 /*--------------------------------------------------------------------------
 
-@sinclair/typebox/value
+@sinclair/typebox/format
 
 The MIT License (MIT)
 
@@ -26,23 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ---------------------------------------------------------------------------*/
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValueErrorType = void 0;
-var index_1 = require("../errors/index");
-Object.defineProperty(exports, "ValueErrorType", { enumerable: true, get: function () { return index_1.ValueErrorType; } });
-__exportStar(require("./pointer"), exports);
-__exportStar(require("./value"), exports);
+exports.Format = void 0;
+/** Shared string formats used by the TypeCompiler and Value modules */
+var Format;
+(function (Format) {
+    const formats = new Map();
+    /** Clears all formats */
+    function Clear() {
+        return formats.clear();
+    }
+    Format.Clear = Clear;
+    /** Returns true if the string format exists */
+    function Has(format) {
+        return formats.has(format);
+    }
+    Format.Has = Has;
+    /** Sets a string format validation function */
+    function Set(format, func) {
+        formats.set(format, func);
+    }
+    Format.Set = Set;
+    /** Gets a string format validation function */
+    function Get(format) {
+        return formats.get(format);
+    }
+    Format.Get = Get;
+})(Format = exports.Format || (exports.Format = {}));
